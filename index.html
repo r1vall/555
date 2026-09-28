@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>555 ☦ ファッションブランド ランダム選出</title>
+  <meta name="description" content="ファッションブランドをランダムに選出。東京の現在時刻、為替レート、ファッションニュースをひとつのページに。">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23fff'/%3E%3Cpath d='M16 3V29M12 7H20M8 12H24M11 21.5L21 24.5' stroke='%23000' stroke-width='2.4' stroke-linecap='square' fill='none'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --white: #ffffff;
+      --black: #000000;
+      --muted: #6b6b6b;
+      --line: #e5e5e5;
+      --strip: #f4f4f6;
+      --badge: #6b6b6b;
+      --maxw: 1170px;
+      --header-h: 64px;
+      --font: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "YuGothic", "Noto Sans JP", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--white);
+      color: var(--black);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.7;
+      letter-spacing: 0.02em;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input { font: inherit; letter-spacing: inherit; color: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+    ul { list-style: none; margin: 0; padding: 0; }
+    h1, h2, h3, h4, p { margin: 0; }
+    :focus-visible { outline: 2px solid var(--black); outline-offset: 3px; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+    }
+    [hidden] { display: none !important; }
+    svg.ic { width: 1em; height: 1em; fill: currentColor; display: block; }
+
+    /* ---------- Top strip (language) ---------- */
+    .topbar { background: var(--strip); height: 40px; }
+    .topbar-inner {
+      max-width: none; height: 100%; padding: 0 24px;
+      display: flex; justify-content: flex-end; align-items: center;
+    }
+    .lang { position: relative; }
+    .lang-btn {
+      background: none; border: 0; padding: 6px 4px; font-size: 12px; color: var(--muted);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .lang-btn svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 1.6; transition: transform .2s; }
+    .lang-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+    .lang-menu {
+      position: absolute; right: 0; top: 100%; min-width: 140px; z-index: 60;
+      background: var(--white); border: 1px solid var(--black); padding: 4px 0;
+    }
+    .lang-menu li { padding: 8px 16px; font-size: 13px; display: flex; justify-content: space-between; gap: 16px; }
+
+    /* ---------- Header ---------- */
+    .site-header {
+      position: sticky; top: 0; z-index: 50;
+      background: var(--white); border-bottom: 1px solid var(--line);
+    }
+    .hdr-inner {
+      height: var(--header-h); padding: 0 24px;
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 40px;
+    }
+    .logo {
+      display: inline-flex; align-items: center; gap: 10px;
+      text-decoration: none; color: var(--black); line-height: 1;
+    }
+    .logo svg { width: 22px; height: 30px; }
+    .logo-text { font-size: 30px; font-weight: 900; letter-spacing: -0.02em; }
+    .main-nav ul { display: flex; flex-wrap: nowrap; gap: 4px; }
+    .main-nav a {
+      display: block; padding: 8px 14px; font-size: 14px; font-weight: 500;
+      text-decoration: none; white-space: nowrap; position: relative;
+    }
+    .main-nav a::after {
+      content: ""; position: absolute; left: 14px; right: 14px; bottom: 2px; height: 2px;
+      background: var(--black); transform: scaleX(0); transform-origin: left; transition: transform .25s ease;
+    }
+    .main-nav a:hover::after, .main-nav a.is-active::after { transform: scaleX(1); }
+
+    .hdr-tools { display: flex; align-items: center; gap: 2px; }
+    .icon-btn {
+      position: relative; width: 40px; height: 40px; background: none; border: 0;
+      display: grid; place-items: center; font-size: 22px;
+    }
+    .icon-btn .count {
+      position: absolute; top: 3px; right: 1px; min-width: 16px; height: 16px; padding: 0 4px;
+      border-radius: 8px; background: var(--black); color: var(--white);
+      font-size: 10px; line-height: 16px; font-weight: 700; text-align: center;
+    }
+
+    .searchbar { border-top: 1px solid var(--line); background: var(--white); }
+    .searchbar-inner { max-width: var(--maxw); margin: 0 auto; padding: 12px 24px; display: flex; gap: 12px; }
+    .searchbar input {
+      flex: 1; min-width: 0; height: 44px; padding: 0 14px; border: 1px solid var(--black);
+      background: var(--white); border-radius: 0; outline: none;
+    }
+    .searchbar input:focus-visible { outline: 2px solid var(--black); outline-offset: 2px; }
+
+    /* ---------- Layout helpers ---------- */
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+    .section { padding-top: 96px; scroll-margin-top: calc(var(--header-h) + 8px); }
+    .section-title { font-size: 26px; font-weight: 800; letter-spacing: 0.04em; text-align: center; line-height: 1.4; }
+    .section-lead { text-align: center; color: var(--muted); font-size: 13px; margin-top: 8px; }
+    .section-head { margin-bottom: 40px; }
+
+    .badge {
+      display: inline-block; background: var(--badge); color: var(--white);
+      font-size: 12px; line-height: 1; padding: 6px 9px; letter-spacing: 0.04em; white-space: nowrap;
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      height: 52px; padding: 0 36px; font-size: 15px; font-weight: 700; letter-spacing: 0.08em;
+      border: 1px solid var(--black); border-radius: 0; background: var(--black); color: var(--white);
+      transition: background .18s, color .18s;
+    }
+    .btn:hover:not(:disabled) { background: var(--white); color: var(--black); }
+    .btn:disabled { background: var(--white); color: #9a9a9a; border-color: var(--line); cursor: not-allowed; }
+    .btn-line { background: var(--white); color: var(--black); }
+    .btn-line:hover:not(:disabled) { background: var(--black); color: var(--white); }
+    .btn-line svg { width: 18px; height: 18px; }
+    .btn-line.is-on svg path { fill: currentColor; }
+
+    .link-btn {
+      background: none; border: 0; padding: 4px 0; font-size: 13px; text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .link-btn:hover { text-decoration-thickness: 2px; }
+
+    /* ---------- Lookbook banners ---------- */
+    .banners { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding-top: 56px; }
+    .banner {
+      position: relative; isolation: isolate; overflow: hidden;
+      min-height: 306px; padding: 24px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      color: #fff; text-decoration: none; transition: filter .35s ease;
+    }
+    .banner::before { content: ""; position: absolute; inset: 0; z-index: -3; }
+    .banner-a::before { background: linear-gradient(112deg, #0f1113 0 46%, #33383d 46% 100%); }
+    .banner-b::before { background: linear-gradient(248deg, #0f1113 0 46%, #33383d 46% 100%); }
+    .banner::after {
+      content: ""; position: absolute; inset: 0; z-index: -1; opacity: .22; mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    .banner .ring {
+      position: absolute; z-index: -2; width: 260px; height: 260px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.3); top: 50%; left: 50%; transform: translate(-50%, -50%);
+    }
+    .banner-a .ring { left: 34%; }
+    .banner-b .ring { left: 66%; }
+    .banner .frame { position: absolute; inset: 14px; z-index: -2; border: 1px solid rgba(255,255,255,.16); }
+    .banner h3 { font-size: 30px; font-weight: 600; line-height: 1.35; letter-spacing: 0.03em; }
+    .banner p { font-size: 14px; margin-top: 8px; }
+    .banner:hover { filter: invert(1); }
+
+    /* ---------- Randomizer ---------- */
+    .stage {
+      position: relative; max-width: 760px; margin: 0 auto;
+      min-height: 240px; padding: 56px 32px 40px;
+      border: 1px solid var(--line); background: var(--white); color: var(--black);
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      transition: background .25s ease, color .25s ease, border-color .25s ease;
+    }
+    .stage .badge { position: absolute; top: 14px; right: 14px; }
+    .stage-brand {
+      font-size: clamp(2rem, 7vw, 4.4rem); font-weight: 800; line-height: 1.15; letter-spacing: -0.01em;
+      overflow-wrap: anywhere;
+    }
+    .stage-brand.is-idle { font-size: clamp(1.1rem, 3vw, 1.4rem); font-weight: 500; color: var(--muted); letter-spacing: 0.06em; }
+    .stage.is-result { background: var(--black); color: var(--white); border-color: var(--black); }
+    .stage.is-result .badge { background: var(--white); color: var(--black); }
+    .stage.is-empty { border-color: var(--black); }
+    .stage.is-empty .stage-brand { color: var(--black); }
+
+    .actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+    .fav-line { text-align: center; margin-top: 16px; font-size: 13px; color: var(--muted); }
+
+    .panel { border: 1px solid var(--line); padding: 32px; background: var(--white); }
+    .brands-panel { max-width: 900px; margin: 56px auto 0; }
+    .panel-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 24px; margin-bottom: 20px; }
+    .panel-title { font-size: 17px; font-weight: 800; letter-spacing: 0.04em; }
+    .panel-title small { font-size: 13px; font-weight: 500; color: var(--muted); margin-left: 10px; letter-spacing: 0.02em; }
+    .panel-ctrls { display: flex; gap: 20px; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      padding: 9px 16px; font-size: 14px; line-height: 1.3; border-radius: 0;
+      border: 1px solid var(--black); background: var(--black); color: var(--white);
+      transition: background .15s, color .15s, border-color .15s; user-select: none;
+    }
+    .chip[aria-pressed="true"]:hover { background: var(--white); color: var(--black); }
+    .chip[aria-pressed="false"] {
+      background: var(--white); color: #8a8a8a; border-color: var(--line); text-decoration: line-through;
+      text-decoration-color: #c4c4c4;
+    }
+    .chip[aria-pressed="false"]:hover { border-color: var(--black); color: var(--black); text-decoration: none; }
+    .chips-empty { font-size: 13px; color: var(--muted); }
+
+    .add-row { display: flex; gap: 8px; margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--line); }
+    .add-row input {
+      flex: 1; min-width: 0; height: 46px; padding: 0 14px; border: 1px solid var(--line);
+      border-radius: 0; background: var(--white); outline: none; transition: border-color .15s;
+    }
+    .add-row input:focus { border-color: var(--black); }
+    .add-row .btn { height: 46px; padding: 0 24px; font-size: 14px; }
+
+    /* ---------- Time + rates ---------- */
+    .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    .duo > section { display: flex; flex-direction: column; }
+    .duo .panel { flex: 1; display: flex; flex-direction: column; }
+    .duo .section-title { font-size: 22px; margin-bottom: 24px; }
+
+    .time-panel { align-items: center; justify-content: center; text-align: center; gap: 14px; }
+    .clock { font-size: clamp(2.6rem, 7vw, 4.4rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    .date-line { font-size: 17px; font-weight: 700; letter-spacing: 0.06em; }
+    .offset-line { font-size: 13px; color: var(--muted); }
+
+    .rate-controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between; }
+    .seg { display: flex; }
+    .seg button {
+      height: 40px; padding: 0 14px; font-size: 13px; font-weight: 600; background: var(--white);
+      border: 1px solid var(--line); border-radius: 0; margin-left: -1px; transition: background .15s, color .15s;
+    }
+    .seg button:first-child { margin-left: 0; }
+    .seg button:hover { border-color: var(--black); position: relative; }
+    .seg button[aria-pressed="true"] { background: var(--black); color: var(--white); border-color: var(--black); position: relative; }
+    .amount { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+    .amount input {
+      width: 140px; height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 0;
+      background: var(--white); color: var(--black); outline: none; font-size: 15px; font-variant-numeric: tabular-nums;
+    }
+    .amount input:focus { border-color: var(--black); }
+    .rate-list { margin-top: 20px; border-top: 1px solid var(--black); }
+    .rate-list li {
+      display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; align-items: baseline;
+      padding: 14px 0; border-bottom: 1px solid var(--line);
+    }
+    .rate-name { font-weight: 700; font-size: 15px; }
+    .rate-name small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 8px; }
+    .rate-val { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; letter-spacing: 0; }
+    .rate-sub { grid-column: 1 / -1; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .rate-foot { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: auto; padding-top: 16px; font-size: 12px; color: var(--muted); }
+
+    /* ---------- News ---------- */
+    .news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .news-card {
+      border: 1px solid var(--line); padding: 24px; display: flex; flex-direction: column; gap: 12px;
+      background: var(--white); color: var(--black); transition: background .18s, color .18s, border-color .18s;
+    }
+    .news-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .news-card h3 { font-size: 17px; font-weight: 800; line-height: 1.55; letter-spacing: 0.03em; }
+    .news-card p { font-size: 13px; color: var(--muted); line-height: 1.8; }
+    .news-card:hover { background: var(--black); color: var(--white); border-color: var(--black); }
+    .news-card:hover .news-meta, .news-card:hover p { color: #bdbdbd; }
+    .news-card:hover .badge { background: var(--white); color: var(--black); }
+
+    /* ---------- Stores ---------- */
+    .store-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .store {
+      border: 1px solid var(--line); padding: 24px; display: flex; flex-direction: column; gap: 8px;
+      transition: background .18s, color .18s, border-color .18s;
+    }
+    .store h3 { font-size: 18px; font-weight: 800; letter-spacing: 0.05em; }
+    .store p { font-size: 13px; color: var(--muted); line-height: 1.8; }
+    .store a { margin-top: auto; padding-top: 12px; font-size: 13px; text-underline-offset: 3px; width: fit-content; }
+    .store:hover { background: var(--black); color: var(--white); border-color: var(--black); }
+    .store:hover p { color: #bdbdbd; }
+
+    /* ---------- Footer ---------- */
+    .site-footer { margin-top: 120px; border-top: 1px solid var(--line); padding: 48px 0 40px; }
+    .foot-inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 32px; }
+    .foot-links { display: flex; flex-wrap: wrap; gap: 12px 32px; font-size: 13px; }
+    .foot-links a { text-decoration: none; }
+    .foot-links a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .foot-note { margin-top: 32px; font-size: 12px; color: var(--muted); line-height: 1.9; }
+
+    /* ---------- Cookie banner ---------- */
+    .cookie {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 80;
+      background: var(--white); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0,0,0,.06);
+    }
+    .cookie-inner {
+      max-width: none; padding: 24px 32px; display: grid; grid-template-columns: 1fr auto; gap: 16px 48px; align-items: center;
+    }
+    .cookie h2 { font-size: 16px; font-weight: 800; letter-spacing: 0.04em; margin-bottom: 8px; }
+    .cookie p { font-size: 12px; line-height: 1.8; max-width: 820px; }
+    .cookie-btns { display: flex; align-items: center; gap: 16px; }
+    .cookie-btns .btn { height: 40px; min-width: 184px; padding: 0 20px; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; background: var(--white); color: var(--black); }
+    .cookie-btns .btn:hover { background: var(--black); color: var(--white); }
+    .cookie-btns .link-btn { margin-right: 24px; }
+
+    dialog.cookie-dialog {
+      border: 1px solid var(--black); padding: 0; width: min(520px, calc(100% - 32px)); background: var(--white); color: var(--black);
+    }
+    dialog.cookie-dialog::backdrop { background: rgba(0,0,0,.45); }
+    .dlg-body { padding: 32px; }
+    .dlg-body h2 { font-size: 20px; font-weight: 800; letter-spacing: 0.04em; margin-bottom: 8px; }
+    .dlg-body > p { font-size: 13px; color: var(--muted); }
+    .pref { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+    .pref:first-of-type { margin-top: 20px; border-top: 1px solid var(--black); }
+    .pref strong { display: block; font-size: 14px; }
+    .pref span { font-size: 12px; color: var(--muted); line-height: 1.7; display: block; }
+    .pref input { width: 20px; height: 20px; margin-top: 2px; accent-color: #000; flex: none; }
+    .dlg-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+    .dlg-actions .btn { height: 44px; padding: 0 24px; font-size: 13px; }
+
+    /* ---------- Toast ---------- */
+    .toast {
+      position: fixed; left: 50%; top: calc(var(--header-h) + 56px); z-index: 90; transform: translate(-50%, -8px);
+      background: var(--black); color: var(--white); padding: 12px 22px; font-size: 13px;
+      opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; max-width: calc(100% - 32px); text-align: center;
+    }
+    .toast.is-show { opacity: 1; transform: translate(-50%, 0); }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 1100px) {
+      .hdr-inner { gap: 20px; }
+      .news-grid, .store-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 960px) {
+      .hdr-inner { grid-template-columns: 1fr auto; grid-template-rows: var(--header-h) auto; height: auto; padding: 0 16px; gap: 0 12px; }
+      .main-nav { grid-column: 1 / -1; grid-row: 2; margin: 0 -16px; padding: 0 16px; overflow-x: auto; border-top: 1px solid var(--line); scrollbar-width: none; }
+      .main-nav::-webkit-scrollbar { display: none; }
+      .main-nav a { padding: 12px 12px; }
+      .main-nav a::after { bottom: 4px; }
+      .section { scroll-margin-top: calc(var(--header-h) + 52px); }
+      .topbar-inner { padding: 0 16px; }
+      .duo { grid-template-columns: 1fr; }
+      .cookie-inner { grid-template-columns: 1fr; padding: 20px 20px; }
+      .cookie-btns { flex-wrap: wrap; }
+    }
+    @media (max-width: 700px) {
+      .wrap { padding: 0 16px; }
+      .section { padding-top: 64px; }
+      .banners { grid-template-columns: 1fr; gap: 16px; padding-top: 32px; }
+      .banner { min-height: 220px; }
+      .banner h3 { font-size: 24px; }
+      .section-title { font-size: 22px; }
+      .stage { padding: 56px 16px 32px; min-height: 200px; }
+      .panel { padding: 20px; }
+      .news-grid, .store-grid { grid-template-columns: 1fr; }
+      .cookie-btns .btn { flex: 1 1 130px; min-width: 0; }
+      .cookie-btns .link-btn { width: 100%; text-align: left; margin-right: 0; }
+      .logo-text { font-size: 26px; }
+      .site-footer { margin-top: 80px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SVG sprites -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-search" viewBox="0 0 24 24"><path d="M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.3 4.3-1.4 1.4-4.3-4.3A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="4.5"/><path d="M3.5 21c0-4.7 3.8-8 8.5-8s8.5 3.3 8.5 8z"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21.2 3.9 13.4A5.6 5.6 0 0 1 12 5.6a5.6 5.6 0 0 1 8.1 7.8z"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><path d="M1.5 2.5h3.6l.7 2.5H22l-2.4 9.2H8.2l.5 2h11v2H7.2L3.6 4.5H1.5z"/><circle cx="9" cy="20.8" r="1.7"/><circle cx="18" cy="20.8" r="1.7"/></symbol>
+  </defs>
+</svg>
+
+<!-- Top strip: language -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="lang">
+      <button class="lang-btn" id="langBtn" aria-haspopup="true" aria-expanded="false" aria-controls="langMenu">
+        日本語
+        <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4"/></svg>
+      </button>
+      <ul class="lang-menu" id="langMenu" hidden>
+        <li><span>日本語</span><span aria-hidden="true">✓</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="hdr-inner">
+    <a class="logo" href="#top" aria-label="555 ☦ トップへ">
+      <svg viewBox="0 0 22 30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square">
+        <path d="M11 2V28M8 6H14M4 11H18M7 20.5L15 23.5"/>
+      </svg>
+      <span class="logo-text">555</span>
+    </a>
+
+    <nav class="main-nav" aria-label="メインナビゲーション">
+      <ul>
+        <li><a href="#random" data-target="random">ランダム選出</a></li>
+        <li><a href="#news" data-target="news">ファッションニュース</a></li>
+        <li><a href="#rates" data-target="rates">為替レート</a></li>
+        <li><a href="#time" data-target="time">東京時間</a></li>
+        <li><a href="#collection" data-target="collection">コレクション</a></li>
+        <li><a href="#stores" data-target="stores">店舗情報</a></li>
+      </ul>
+    </nav>
+
+    <div class="hdr-tools">
+      <button class="icon-btn" id="searchBtn" aria-label="ブランドを検索" aria-expanded="false" aria-controls="searchBar"><svg class="ic"><use href="#i-search"/></svg></button>
+      <button class="icon-btn" id="userBtn" aria-label="マイページ"><svg class="ic"><use href="#i-user"/></svg></button>
+      <button class="icon-btn" id="favHeaderBtn" aria-label="お気に入り"><svg class="ic"><use href="#i-heart"/></svg><span class="count" id="favCount">0</span></button>
+      <button class="icon-btn" id="cartBtn" aria-label="カート"><svg class="ic"><use href="#i-cart"/></svg><span class="count" id="cartCount">0</span></button>
+    </div>
+  </div>
+
+  <div class="searchbar" id="searchBar" hidden>
+    <div class="searchbar-inner">
+      <label class="sr-only" for="brandSearch">ブランドを検索</label>
+      <input id="brandSearch" type="search" placeholder="ブランド名で絞り込む" autocomplete="off">
+      <button class="btn btn-line" id="searchClose" style="height:44px;padding:0 20px;font-size:13px">閉じる</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- Lookbook banners -->
+  <section id="collection" class="wrap banners section" style="padding-top:56px" aria-label="コレクション">
+    <a class="banner banner-a" href="#random">
+      <span class="frame" aria-hidden="true"></span><span class="ring" aria-hidden="true"></span>
+      <h3>The Black-and-White Realism</h3>
+      <p>ルックブック</p>
+    </a>
+    <a class="banner banner-b" href="#random">
+      <span class="frame" aria-hidden="true"></span><span class="ring" aria-hidden="true"></span>
+      <h3>The Black-and-White Realism</h3>
+      <p>2026年秋冬コレクション</p>
+    </a>
+  </section>
+
+  <!-- Randomizer -->
+  <section id="random" class="wrap section">
+    <div class="section-head">
+      <h2 class="section-title">ランダム選出</h2>
+      <p class="section-lead">選択中のブランドから、ひとつを無作為に選びます。</p>
+    </div>
+
+    <div class="stage" id="stage">
+      <span class="badge" id="stateBadge">待機中</span>
+      <div id="result" class="stage-brand is-idle">ボタンを押してください</div>
+    </div>
+    <span class="sr-only" id="resultLive" aria-live="polite"></span>
+
+    <div class="actions">
+      <button id="generateBtn" class="btn">ブランドを選ぶ</button>
+      <button id="favBtn" class="btn btn-line" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5 4.4 13A5.2 5.2 0 0 1 12 5.9 5.2 5.2 0 0 1 19.6 13z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <span id="favBtnLabel">お気に入りに追加</span>
+      </button>
+    </div>
+    <p class="fav-line" id="favLine" hidden></p>
+
+    <div class="panel brands-panel">
+      <div class="panel-head">
+        <h3 class="panel-title">選出対象のブランド<small id="brandCount">26 / 26</small></h3>
+        <div class="panel-ctrls">
+          <button class="link-btn" id="selectAll">すべて選択</button>
+          <button class="link-btn" id="selectNone">すべて解除</button>
+        </div>
+      </div>
+      <div id="chipsContainer" class="chips" role="group" aria-label="選出対象のブランド"></div>
+
+      <div class="add-row">
+        <label class="sr-only" for="newBrandInput">ブランドを追加</label>
+        <input type="text" id="newBrandInput" placeholder="ブランド名を追加（英字）" autocomplete="off">
+        <button class="btn" id="addBrandBtn">追加</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Time + rates -->
+  <div class="wrap section duo">
+    <section id="time" aria-labelledby="timeTitle" style="scroll-margin-top:calc(var(--header-h) + 8px)">
+      <h2 class="section-title" id="timeTitle">東京の現在時刻</h2>
+      <div class="panel time-panel">
+        <span class="badge">日本標準時 JST（UTC+9）</span>
+        <div class="clock" id="clock" role="timer" aria-live="off">--:--:--</div>
+        <div class="date-line" id="dateLine">&nbsp;</div>
+        <div class="offset-line" id="offsetLine">&nbsp;</div>
+      </div>
+    </section>
+
+    <section id="rates" aria-labelledby="ratesTitle" style="scroll-margin-top:calc(var(--header-h) + 8px)">
+      <h2 class="section-title" id="ratesTitle">為替レート</h2>
+      <div class="panel">
+        <div class="rate-controls">
+          <div class="seg" role="group" aria-label="基準通貨" id="baseSeg"></div>
+          <label class="amount">金額
+            <input id="amount" type="number" inputmode="decimal" min="0" step="any" value="10000">
+          </label>
+        </div>
+        <ul class="rate-list" id="rateList"></ul>
+        <div class="rate-foot">
+          <span id="rateStatus">読み込み中…</span>
+          <button class="link-btn" id="rateRefresh">更新</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- News -->
+  <section id="news" class="wrap section">
+    <div class="section-head">
+      <h2 class="section-title">最新ファッションニュース</h2>
+      <p class="section-lead">※ 掲載内容はデザイン確認用のサンプルです。</p>
+    </div>
+    <div class="news-grid">
+      <article class="news-card">
+        <div class="news-meta"><span class="badge">コレクション</span><time datetime="2026-09-27">2026.09.27</time></div>
+        <h3>モノクロームが主役に。秋冬のテーラリングを見直す</h3>
+        <p>黒と白だけで構成された装いが、ふたたびランウェイの中心へ。素材の質感と縫製の精度が印象を決めます。</p>
+      </article>
+      <article class="news-card">
+        <div class="news-meta"><span class="badge">マーケット</span><time datetime="2026-09-25">2026.09.25</time></div>
+        <h3>日本のアーカイブ市場に、海外からの需要が集まる</h3>
+        <p>90年代から2000年代の国内デザイナーズ作品が、国境を越えて評価されています。</p>
+      </article>
+      <article class="news-card">
+        <div class="news-meta"><span class="badge">ストリート</span><time datetime="2026-09-23">2026.09.23</time></div>
+        <h3>原宿・表参道で、秋のポップアップが相次いで開催</h3>
+        <p>期間限定の店舗が並び、街歩きの楽しみが広がっています。開催日程は各ブランドの発表をご確認ください。</p>
+      </article>
+      <article class="news-card">
+        <div class="news-meta"><span class="badge">サステナビリティ</span><time datetime="2026-09-20">2026.09.20</time></div>
+        <h3>再生素材は、ラグジュアリーの新しい基準になるか</h3>
+        <p>環境への配慮と上質な仕上がりを両立させる試みが、ハイブランドの間で進んでいます。</p>
+      </article>
+      <article class="news-card">
+        <div class="news-meta"><span class="badge">カルチャー</span><time datetime="2026-09-18">2026.09.18</time></div>
+        <h3>モードとストリートの境界線が、ふたたび曖昧に</h3>
+        <p>異なる文脈のブランドが交差し、新しいスタイルが生まれています。</p>
+      </article>
+      <article class="news-card">
+        <div class="news-meta"><span class="badge">デザイナー</span><time datetime="2026-09-15">2026.09.15</time></div>
+        <h3>東京から世界へ。若手デザイナーが注目を集める理由</h3>
+        <p>少量生産と独自の美意識を武器に、国内外のバイヤーから支持を広げています。</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Stores -->
+  <section id="stores" class="wrap section">
+    <div class="section-head">
+      <h2 class="section-title">店舗情報</h2>
+      <p class="section-lead">ブランド巡りにおすすめの主なエリアです。</p>
+    </div>
+    <div class="store-grid">
+      <div class="store"><h3>渋谷</h3><p>セレクトショップと古着店が密集する、東京屈指のファッションエリア。</p><a href="https://www.google.com/maps/search/?api=1&query=%E6%B8%8B%E8%B0%B7+%E3%83%95%E3%82%A1%E3%83%83%E3%82%B7%E3%83%A7%E3%83%B3" target="_blank" rel="noopener">地図で見る</a></div>
+      <div class="store"><h3>原宿・表参道</h3><p>ストリートからハイブランドまで、旗艦店が並ぶ通り。</p><a href="https://www.google.com/maps/search/?api=1&query=%E8%A1%A8%E5%8F%82%E9%81%93+%E3%83%95%E3%82%A1%E3%83%83%E3%82%B7%E3%83%A7%E3%83%B3" target="_blank" rel="noopener">地図で見る</a></div>
+      <div class="store"><h3>代官山</h3><p>落ち着いた街並みに、個性的なブティックが点在します。</p><a href="https://www.google.com/maps/search/?api=1&query=%E4%BB%A3%E5%AE%98%E5%B1%B1+%E3%83%95%E3%82%A1%E3%83%83%E3%82%B7%E3%83%A7%E3%83%B3" target="_blank" rel="noopener">地図で見る</a></div>
+      <div class="store"><h3>銀座</h3><p>百貨店とラグジュアリーブランドの路面店が集まるエリア。</p><a href="https://www.google.com/maps/search/?api=1&query=%E9%8A%80%E5%BA%A7+%E3%83%95%E3%82%A1%E3%83%83%E3%82%B7%E3%83%A7%E3%83%B3" target="_blank" rel="noopener">地図で見る</a></div>
+      <div class="store"><h3>高円寺・下北沢</h3><p>古着とアーカイブ探しに向いた、個人経営の店が多い街。</p><a href="https://www.google.com/maps/search/?api=1&query=%E4%B8%8B%E5%8C%97%E6%B2%A2+%E5%8F%A4%E7%9D%80" target="_blank" rel="noopener">地図で見る</a></div>
+      <div class="store"><h3>心斎橋（大阪）</h3><p>西日本を代表するショッピングエリア。ブランド店とセレクトショップが揃います。</p><a href="https://www.google.com/maps/search/?api=1&query=%E5%BF%83%E6%96%8E%E6%A9%8B+%E3%83%95%E3%82%A1%E3%83%83%E3%82%B7%E3%83%A7%E3%83%B3" target="_blank" rel="noopener">地図で見る</a></div>
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-inner">
+      <a class="logo" href="#top" aria-label="555 ☦ トップへ">
+        <svg viewBox="0 0 22 30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square">
+          <path d="M11 2V28M8 6H14M4 11H18M7 20.5L15 23.5"/>
+        </svg>
+        <span class="logo-text">555</span>
+      </a>
+      <nav class="foot-links" aria-label="フッター">
+        <a href="#random">ランダム選出</a>
+        <a href="#news">ファッションニュース</a>
+        <a href="#rates">為替レート</a>
+        <a href="#time">東京時間</a>
+        <a href="#stores">店舗情報</a>
+        <a href="#" id="footPrivacy">プライバシー設定</a>
+      </nav>
+    </div>
+    <p class="foot-note">為替レートは参考値です。実際の取引レートとは異なる場合があります。<br>© 2026 555 ☦ All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- Cookie banner -->
+<div class="cookie" id="cookieBanner" role="region" aria-label="プライバシー設定" hidden>
+  <div class="cookie-inner">
+    <div>
+      <h2>私たちはあなたのプライバシーを大切にします</h2>
+      <p>私たちは、お客様の体験をパーソナライズし、マーケティングを実行し、分析情報を収集するために、Cookieやその他のテクノロジーを使用します。詳細については <a href="#" id="cookiePolicy">プライバシーポリシーをご覧ください。</a></p>
+    </div>
+    <div class="cookie-btns">
+      <button class="link-btn" id="cookieManage">設定を管理</button>
+      <button class="btn" id="cookieAccept">受け入れ</button>
+      <button class="btn" id="cookieReject">拒否</button>
+    </div>
+  </div>
+</div>
+
+<dialog class="cookie-dialog" id="cookieDialog" aria-labelledby="dlgTitle">
+  <div class="dlg-body">
+    <h2 id="dlgTitle">プライバシー設定</h2>
+    <p>利用を許可するCookieの種類を選択してください。</p>
+    <label class="pref"><div><strong>必須Cookie</strong><span>サイトの動作に必要なため、常に有効です。</span></div><input type="checkbox" checked disabled></label>
+    <label class="pref"><div><strong>分析Cookie</strong><span>ページの利用状況を把握し、改善に役立てます。</span></div><input type="checkbox" id="prefAnalytics"></label>
+    <label class="pref"><div><strong>マーケティングCookie</strong><span>関心に合わせた情報の表示に使用します。</span></div><input type="checkbox" id="prefMarketing"></label>
+    <div class="dlg-actions">
+      <button class="btn btn-line" id="dlgCancel">キャンセル</button>
+      <button class="btn" id="dlgSave">保存</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------------- Toast ---------------- */
+  let toastTimer;
+  function toast(msg) {
+    const el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('is-show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('is-show'), 2200);
+  }
+
+  /* ---------------- Language menu ---------------- */
+  const langBtn = $('#langBtn'), langMenu = $('#langMenu');
+  langBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = langMenu.hidden;
+    langMenu.hidden = !open;
+    langBtn.setAttribute('aria-expanded', String(open));
+  });
+  document.addEventListener('click', () => { langMenu.hidden = true; langBtn.setAttribute('aria-expanded', 'false'); });
+
+  /* ---------------- Randomizer ---------------- */
+  // Brand names intentionally stay in Latin script.
+  let allBrands = [
+    "Vetements", "Project GR", "ERD", "Undercover", "Rick Owens",
+    "Number Nine", "Balenciaga", "Protocolindex", "Hysteric Glamour",
+    "Nenet", "Chrome Hearts", "LGB", "Tornado Mart", "if6was9",
+    "Grailz", "Mastermind", "TheSoloist", "Burberry", "Supreme",
+    "Saint Laurent", "Martine Rose", "Stone Island + CP", "Helmut Lang",
+    "Beauty Beast", "Gucci", "Vivienne Westwood"
+  ];
+  let activeBrands = new Set(allBrands);
+  let isAnimating = false;
+  let currentBrand = null;
+  let query = '';
+  const favs = new Set();
+
+  const chipsEl = $('#chipsContainer'), stage = $('#stage'), display = $('#result');
+  const badge = $('#stateBadge'), genBtn = $('#generateBtn'), favBtn = $('#favBtn');
+
+  function visibleBrands() {
+    const q = query.trim().toLowerCase();
+    return q ? allBrands.filter(b => b.toLowerCase().includes(q)) : allBrands.slice();
+  }
+
+  function renderChips() {
+    chipsEl.innerHTML = '';
+    const list = visibleBrands();
+    if (!list.length) {
+      const p = document.createElement('p');
+      p.className = 'chips-empty';
+      p.textContent = '該当するブランドがありません。';
+      chipsEl.appendChild(p);
+    }
+    list.forEach(brand => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip';
+      chip.textContent = brand;
+      chip.setAttribute('aria-pressed', String(activeBrands.has(brand)));
+      chip.addEventListener('click', () => toggleBrand(brand));
+      chipsEl.appendChild(chip);
+    });
+    $('#brandCount').textContent = `${activeBrands.size} / ${allBrands.length}`;
+  }
+
+  function toggleBrand(brand) {
+    activeBrands.has(brand) ? activeBrands.delete(brand) : activeBrands.add(brand);
+    renderChips();
+  }
+
+  function addNewBrand() {
+    const input = $('#newBrandInput');
+    const val = input.value.trim();
+    if (!val) return;
+    if (allBrands.some(b => b.toLowerCase() === val.toLowerCase())) {
+      toast('すでに登録されているブランドです');
+      return;
+    }
+    allBrands.push(val);
+    activeBrands.add(val);
+    input.value = '';
+    renderChips();
+    toast(`「${val}」を追加しました`);
+  }
+
+  $('#addBrandBtn').addEventListener('click', addNewBrand);
+  $('#newBrandInput').addEventListener('keydown', e => { if (e.key === 'Enter') addNewBrand(); });
+  $('#selectAll').addEventListener('click', () => { visibleBrands().forEach(b => activeBrands.add(b)); renderChips(); });
+  $('#selectNone').addEventListener('click', () => { visibleBrands().forEach(b => activeBrands.delete(b)); renderChips(); });
+
+  // Cryptographically secure random integer in [0, max) without modulo bias
+  function getSecureRandomInt(max) {
+    const limit = Math.floor(0x100000000 / max) * max;
+    const arr = new Uint32Array(1);
+    do { crypto.getRandomValues(arr); } while (arr[0] >= limit);
+    return arr[0] % max;
+  }
+
+  function setState(text) { badge.textContent = text; }
+
+  function updateFavBtn() {
+    const on = currentBrand && favs.has(currentBrand);
+    favBtn.disabled = !currentBrand;
+    favBtn.classList.toggle('is-on', !!on);
+    $('#favBtnLabel').textContent = on ? 'お気に入り済み' : 'お気に入りに追加';
+  }
+
+  function updateFavUI() {
+    $('#favCount').textContent = favs.size;
+    const line = $('#favLine');
+    if (favs.size) {
+      line.hidden = false;
+      line.textContent = 'お気に入り：' + Array.from(favs).join('、');
+    } else {
+      line.hidden = true;
+    }
+    updateFavBtn();
+  }
+
+  favBtn.addEventListener('click', () => {
+    if (!currentBrand) return;
+    if (favs.has(currentBrand)) { favs.delete(currentBrand); toast('お気に入りから削除しました'); }
+    else { favs.add(currentBrand); toast('お気に入りに追加しました'); }
+    updateFavUI();
+  });
+
+  function showResult(brand) {
+    display.textContent = brand;
+    display.style.opacity = 1;
+    display.classList.remove('is-idle');
+    stage.classList.remove('is-empty');
+    stage.classList.add('is-result');
+    setState('選出');
+    currentBrand = brand;
+    $('#resultLive').textContent = `選ばれたブランド：${brand}`;
+    updateFavBtn();
+  }
+
+  function getRandomBrand() {
+    if (isAnimating) return;
+    const availableBrands = Array.from(activeBrands);
+
+    if (availableBrands.length === 0) {
+      stage.classList.remove('is-result');
+      stage.classList.add('is-empty');
+      display.classList.remove('is-idle');
+      display.textContent = 'ブランドを1つ以上選択してください';
+      display.style.fontSize = 'clamp(1.2rem, 3.4vw, 1.8rem)';
+      setState('未選択');
+      currentBrand = null;
+      updateFavBtn();
+      return;
+    }
+    display.style.fontSize = '';
+
+    if (reduceMotion) {
+      showResult(availableBrands[getSecureRandomInt(availableBrands.length)]);
+      genBtn.textContent = 'もう一度選ぶ';
+      return;
+    }
+
+    isAnimating = true;
+    genBtn.disabled = true;
+    stage.classList.remove('is-result', 'is-empty');
+    display.classList.remove('is-idle');
+    setState('抽選中');
+
+    let counter = 0;
+    const totalFlips = 30;
+    const speed = 40;
+
+    const interval = setInterval(() => {
+      display.textContent = availableBrands[getSecureRandomInt(availableBrands.length)];
+      display.style.opacity = Math.random() * 0.4 + 0.6;
+      counter++;
+      if (counter >= totalFlips) {
+        clearInterval(interval);
+        showResult(availableBrands[getSecureRandomInt(availableBrands.length)]);
+        display.style.transform = 'scale(1.06)';
+        display.style.transition = 'transform .2s ease';
+        setTimeout(() => {
+          display.style.transform = 'scale(1)';
+          isAnimating = false;
+          genBtn.disabled = false;
+          genBtn.textContent = 'もう一度選ぶ';
+        }, 200);
+      }
+    }, speed);
+  }
+  genBtn.addEventListener('click', getRandomBrand);
+
+  /* ---------------- Header tools ---------------- */
+  const searchBar = $('#searchBar'), searchBtn = $('#searchBtn'), searchInput = $('#brandSearch');
+  function openSearch() {
+    searchBar.hidden = false;
+    searchBtn.setAttribute('aria-expanded', 'true');
+    searchInput.focus();
+  }
+  function closeSearch() {
+    searchBar.hidden = true;
+    searchBtn.setAttribute('aria-expanded', 'false');
+    searchInput.value = '';
+    query = '';
+    renderChips();
+  }
+  searchBtn.addEventListener('click', () => (searchBar.hidden ? openSearch() : closeSearch()));
+  $('#searchClose').addEventListener('click', closeSearch);
+  searchInput.addEventListener('input', () => {
+    const first = query === '' && searchInput.value !== '';
+    query = searchInput.value;
+    renderChips();
+    if (first) $('#chipsContainer').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !searchBar.hidden) closeSearch(); });
+
+  $('#userBtn').addEventListener('click', () => toast('ログイン機能は準備中です'));
+  $('#cartBtn').addEventListener('click', () => toast('カートは空です'));
+  $('#favHeaderBtn').addEventListener('click', () => {
+    if (!favs.size) { toast('お気に入りはまだありません'); return; }
+    $('#random').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+  });
+
+  /* ---------------- Active nav link ---------------- */
+  const navLinks = $$('.main-nav a');
+  const sections = navLinks.map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (en.isIntersecting) {
+          navLinks.forEach(a => a.classList.toggle('is-active', a.dataset.target === en.target.id));
+        }
+      });
+    }, { rootMargin: '-35% 0px -55% 0px' });
+    sections.forEach(s => io.observe(s));
+  }
+
+  /* ---------------- Tokyo clock ---------------- */
+  const timeFmt = new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+  const dateFmt = new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+  function tickClock() {
+    const now = new Date();
+    $('#clock').textContent = timeFmt.format(now);
+    $('#dateLine').textContent = dateFmt.format(now);
+    const localOffset = -now.getTimezoneOffset() / 60;
+    const diff = 9 - localOffset;
+    const abs = Math.abs(diff);
+    const h = Number.isInteger(abs) ? abs : abs.toFixed(1);
+    $('#offsetLine').textContent = diff === 0
+      ? 'お使いの端末と同じ時刻です'
+      : `お使いの端末より${h}時間${diff > 0 ? '進んでいます' : '遅れています'}`;
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  /* ---------------- Exchange rates ---------------- */
+  const CUR = [
+    { code: 'JPY', name: '日本円',  unit: '円' },
+    { code: 'CNY', name: '人民元',  unit: '元' },
+    { code: 'EUR', name: 'ユーロ',  unit: 'ユーロ' },
+    { code: 'USD', name: '米ドル',  unit: 'ドル' }
+  ];
+  // Approximate fallback values (USD base), used only if the live request fails.
+  let usd = { USD: 1, JPY: 148, CNY: 7.1, EUR: 0.86 };
+  let live = false, stamp = null, base = 'JPY';
+
+  const nfMoney = (code) => new Intl.NumberFormat('ja-JP', { maximumFractionDigits: code === 'JPY' ? 0 : 2 });
+  const nfRate = new Intl.NumberFormat('ja-JP', { maximumSignificantDigits: 5 });
+  const jstStamp = new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+
+  const seg = $('#baseSeg');
+  CUR.forEach(c => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = `${c.unit} ${c.code}`;
+    b.dataset.code = c.code;
+    b.setAttribute('aria-pressed', String(c.code === base));
+    b.addEventListener('click', () => { base = c.code; renderRates(); });
+    seg.appendChild(b);
+  });
+
+  function renderRates() {
+    $$('#baseSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.code === base)));
+    const baseCur = CUR.find(c => c.code === base);
+    const amt = parseFloat($('#amount').value);
+    const amount = Number.isFinite(amt) && amt >= 0 ? amt : 0;
+    const list = $('#rateList');
+    list.innerHTML = '';
+    CUR.filter(c => c.code !== base).forEach(c => {
+      const rate = usd[c.code] / usd[base];
+      const li = document.createElement('li');
+      const name = document.createElement('span');
+      name.className = 'rate-name';
+      name.innerHTML = `${c.name}<small>${c.code}</small>`;
+      const val = document.createElement('span');
+      val.className = 'rate-val';
+      val.textContent = `${nfMoney(c.code).format(amount * rate)}${c.unit}`;
+      const sub = document.createElement('span');
+      sub.className = 'rate-sub';
+      sub.textContent = `1${baseCur.unit} = ${nfRate.format(rate)}${c.unit}`;
+      li.append(name, val, sub);
+      list.appendChild(li);
+    });
+    $('#rateStatus').textContent = live && stamp
+      ? `${jstStamp.format(stamp)} JST 時点`
+      : 'ライブ取得できないため、参考値（概算）を表示中';
+  }
+
+  async function loadRates() {
+    $('#rateStatus').textContent = '取得中…';
+    try {
+      const res = await fetch('https://open.er-api.com/v6/latest/USD', { cache: 'no-store' });
+      const d = await res.json();
+      if (d.result === 'success' && d.rates && d.rates.JPY && d.rates.CNY && d.rates.EUR) {
+        usd = { USD: 1, JPY: d.rates.JPY, CNY: d.rates.CNY, EUR: d.rates.EUR };
+        live = true;
+        stamp = d.time_last_update_unix ? new Date(d.time_last_update_unix * 1000) : new Date();
+      } else { throw new Error('bad response'); }
+    } catch (err) {
+      live = false;
+    }
+    renderRates();
+  }
+  $('#amount').addEventListener('input', renderRates);
+  $('#rateRefresh').addEventListener('click', loadRates);
+
+  /* ---------------- Cookie banner ---------------- */
+  const KEY = 'site555-cookie-consent';
+  const banner = $('#cookieBanner'), dlg = $('#cookieDialog');
+  function readConsent() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
+  function writeConsent(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } }
+  function padForBanner() { document.body.style.paddingBottom = banner.hidden ? '' : banner.offsetHeight + 'px'; }
+  function showBanner() { banner.hidden = false; padForBanner(); }
+  function hideBanner() { banner.hidden = true; padForBanner(); }
+  function decide(analytics, marketing) {
+    writeConsent({ analytics, marketing, at: Date.now() });
+    hideBanner();
+  }
+  $('#cookieAccept').addEventListener('click', () => { decide(true, true); toast('設定を保存しました'); });
+  $('#cookieReject').addEventListener('click', () => { decide(false, false); toast('設定を保存しました'); });
+  function openPrefs() {
+    const c = readConsent() || {};
+    $('#prefAnalytics').checked = !!c.analytics;
+    $('#prefMarketing').checked = !!c.marketing;
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+  $('#cookieManage').addEventListener('click', openPrefs);
+  $('#footPrivacy').addEventListener('click', e => { e.preventDefault(); openPrefs(); });
+  $('#cookiePolicy').addEventListener('click', e => { e.preventDefault(); toast('プライバシーポリシーは準備中です'); });
+  $('#dlgCancel').addEventListener('click', () => dlg.close());
+  $('#dlgSave').addEventListener('click', () => {
+    decide($('#prefAnalytics').checked, $('#prefMarketing').checked);
+    dlg.close();
+    toast('設定を保存しました');
+  });
+  window.addEventListener('resize', padForBanner);
+  if (!readConsent()) showBanner();
+
+  /* ---------------- Init ---------------- */
+  renderChips();
+  updateFavUI();
+  renderRates();
+  loadRates();
+})();
+</script>
+</body>
+</html>
