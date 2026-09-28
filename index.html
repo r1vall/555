@@ -1,34 +1,55 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>555 ☦ ファッションブランド ランダム選出</title>
-  <meta name="description" content="ファッションブランドをランダムに選出。東京の現在時刻、為替レート、ファッションニュースをひとつのページに。">
+  <meta name="description" content="Fashion brand randomizer / ファッションブランド ランダム選出">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23fff'/%3E%3Cpath d='M16 3V29M12 7H20M8 12H24M11 21.5L21 24.5' stroke='%23000' stroke-width='2.4' stroke-linecap='square' fill='none'/%3E%3C/svg%3E">
+  <script>
+    // Apply saved theme before first paint (no flash)
+    (function () {
+      var t = 'light';
+      try { t = localStorage.getItem('site555-theme') || 'light'; } catch (e) {}
+      document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+    })();
+  </script>
   <style>
     :root {
-      --white: #ffffff;
-      --black: #000000;
+      --bg: #ffffff;
+      --fg: #000000;
       --muted: #6b6b6b;
       --line: #e5e5e5;
       --strip: #f4f4f6;
       --badge: #6b6b6b;
+      --inv-muted: #bdbdbd;
+      --off-text: #8a8a8a;
+      --disabled: #9a9a9a;
+      --shadow: rgba(0, 0, 0, .06);
       --maxw: 1170px;
       --header-h: 64px;
       --font: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "YuGothic", "Noto Sans JP", "Helvetica Neue", Arial, sans-serif;
+      color-scheme: light;
     }
-
+    :root[data-theme="dark"] {
+      --bg: #000000;
+      --fg: #ffffff;
+      --muted: #a0a0a0;
+      --line: #2b2b2b;
+      --strip: #151515;
+      --badge: #4a4a4a;
+      --inv-muted: #555555;
+      --off-text: #7d7d7d;
+      --disabled: #5c5c5c;
+      --shadow: rgba(0, 0, 0, .6);
+      color-scheme: dark;
+    }
+ 
     *, *::before, *::after { box-sizing: border-box; }
     html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
     body {
-      margin: 0;
-      background: var(--white);
-      color: var(--black);
-      font-family: var(--font);
-      font-size: 15px;
-      line-height: 1.7;
-      letter-spacing: 0.02em;
+      margin: 0; background: var(--bg); color: var(--fg);
+      font-family: var(--font); font-size: 15px; line-height: 1.7; letter-spacing: 0.02em;
       -webkit-font-smoothing: antialiased;
     }
     button, input { font: inherit; letter-spacing: inherit; color: inherit; }
@@ -36,248 +57,177 @@
     a { color: inherit; }
     ul { list-style: none; margin: 0; padding: 0; }
     h1, h2, h3, h4, p { margin: 0; }
-    :focus-visible { outline: 2px solid var(--black); outline-offset: 3px; }
-    .sr-only {
-      position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
-      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
-    }
+    :focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
     [hidden] { display: none !important; }
     svg.ic { width: 1em; height: 1em; fill: currentColor; display: block; }
-
-    /* ---------- Top strip (language) ---------- */
+ 
+    /* ---------- Top strip ---------- */
     .topbar { background: var(--strip); height: 40px; }
-    .topbar-inner {
-      max-width: none; height: 100%; padding: 0 24px;
-      display: flex; justify-content: flex-end; align-items: center;
-    }
+    .topbar-inner { height: 100%; padding: 0 24px; display: flex; justify-content: flex-end; align-items: center; }
     .lang { position: relative; }
-    .lang-btn {
-      background: none; border: 0; padding: 6px 4px; font-size: 12px; color: var(--muted);
-      display: inline-flex; align-items: center; gap: 6px;
-    }
+    .lang-btn { background: none; border: 0; padding: 6px 4px; font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
     .lang-btn svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 1.6; transition: transform .2s; }
     .lang-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
-    .lang-menu {
-      position: absolute; right: 0; top: 100%; min-width: 140px; z-index: 60;
-      background: var(--white); border: 1px solid var(--black); padding: 4px 0;
-    }
-    .lang-menu li { padding: 8px 16px; font-size: 13px; display: flex; justify-content: space-between; gap: 16px; }
-
+    .lang-menu { position: absolute; right: 0; top: 100%; min-width: 150px; z-index: 60; background: var(--bg); border: 1px solid var(--fg); padding: 4px 0; }
+    .lang-menu button { width: 100%; background: none; border: 0; padding: 8px 16px; font-size: 13px; display: flex; justify-content: space-between; gap: 16px; text-align: left; }
+    .lang-menu button:hover { background: var(--fg); color: var(--bg); }
+ 
     /* ---------- Header ---------- */
-    .site-header {
-      position: sticky; top: 0; z-index: 50;
-      background: var(--white); border-bottom: 1px solid var(--line);
-    }
-    .hdr-inner {
-      height: var(--header-h); padding: 0 24px;
-      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 40px;
-    }
-    .logo {
-      display: inline-flex; align-items: center; gap: 10px;
-      text-decoration: none; color: var(--black); line-height: 1;
-    }
+    .site-header { position: sticky; top: 0; z-index: 50; background: var(--bg); border-bottom: 1px solid var(--line); }
+    .hdr-inner { height: var(--header-h); padding: 0 24px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 32px; }
+    .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--fg); line-height: 1; }
     .logo svg { width: 22px; height: 30px; }
     .logo-text { font-size: 30px; font-weight: 900; letter-spacing: -0.02em; }
-    .main-nav ul { display: flex; flex-wrap: nowrap; gap: 4px; }
-    .main-nav a {
-      display: block; padding: 8px 14px; font-size: 14px; font-weight: 500;
-      text-decoration: none; white-space: nowrap; position: relative;
-    }
-    .main-nav a::after {
-      content: ""; position: absolute; left: 14px; right: 14px; bottom: 2px; height: 2px;
-      background: var(--black); transform: scaleX(0); transform-origin: left; transition: transform .25s ease;
-    }
+    .main-nav ul { display: flex; flex-wrap: nowrap; gap: 2px; }
+    .main-nav a { display: block; padding: 8px 12px; font-size: 14px; font-weight: 500; text-decoration: none; white-space: nowrap; position: relative; }
+    .main-nav a::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 2px; height: 2px; background: var(--fg); transform: scaleX(0); transform-origin: left; transition: transform .25s ease; }
     .main-nav a:hover::after, .main-nav a.is-active::after { transform: scaleX(1); }
-
+ 
     .hdr-tools { display: flex; align-items: center; gap: 2px; }
-    .icon-btn {
-      position: relative; width: 40px; height: 40px; background: none; border: 0;
-      display: grid; place-items: center; font-size: 22px;
-    }
-    .icon-btn .count {
-      position: absolute; top: 3px; right: 1px; min-width: 16px; height: 16px; padding: 0 4px;
-      border-radius: 8px; background: var(--black); color: var(--white);
-      font-size: 10px; line-height: 16px; font-weight: 700; text-align: center;
-    }
-
-    .searchbar { border-top: 1px solid var(--line); background: var(--white); }
+    .icon-btn { position: relative; width: 40px; height: 40px; background: none; border: 0; display: grid; place-items: center; font-size: 22px; }
+    .icon-btn .count { position: absolute; top: 3px; right: 1px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--fg); color: var(--bg); font-size: 10px; line-height: 16px; font-weight: 700; text-align: center; }
+    .icon-btn .ic-sun { display: none; }
+    :root[data-theme="dark"] .icon-btn .ic-sun { display: block; }
+    :root[data-theme="dark"] .icon-btn .ic-moon { display: none; }
+ 
+    .searchbar { border-top: 1px solid var(--line); background: var(--bg); }
     .searchbar-inner { max-width: var(--maxw); margin: 0 auto; padding: 12px 24px; display: flex; gap: 12px; }
-    .searchbar input {
-      flex: 1; min-width: 0; height: 44px; padding: 0 14px; border: 1px solid var(--black);
-      background: var(--white); border-radius: 0; outline: none;
-    }
-    .searchbar input:focus-visible { outline: 2px solid var(--black); outline-offset: 2px; }
-
+    .searchbar input { flex: 1; min-width: 0; height: 44px; padding: 0 14px; border: 1px solid var(--fg); background: var(--bg); border-radius: 0; outline: none; }
+    .searchbar input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+ 
     /* ---------- Layout helpers ---------- */
     .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
     .section { padding-top: 96px; scroll-margin-top: calc(var(--header-h) + 8px); }
     .section-title { font-size: 26px; font-weight: 800; letter-spacing: 0.04em; text-align: center; line-height: 1.4; }
-    .section-lead { text-align: center; color: var(--muted); font-size: 13px; margin-top: 8px; }
+    .section-lead { text-align: center; color: var(--muted); font-size: 13px; margin-top: 8px; max-width: 760px; margin-left: auto; margin-right: auto; }
     .section-head { margin-bottom: 40px; }
-
-    .badge {
-      display: inline-block; background: var(--badge); color: var(--white);
-      font-size: 12px; line-height: 1; padding: 6px 9px; letter-spacing: 0.04em; white-space: nowrap;
-    }
-
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-      height: 52px; padding: 0 36px; font-size: 15px; font-weight: 700; letter-spacing: 0.08em;
-      border: 1px solid var(--black); border-radius: 0; background: var(--black); color: var(--white);
-      transition: background .18s, color .18s;
-    }
-    .btn:hover:not(:disabled) { background: var(--white); color: var(--black); }
-    .btn:disabled { background: var(--white); color: #9a9a9a; border-color: var(--line); cursor: not-allowed; }
-    .btn-line { background: var(--white); color: var(--black); }
-    .btn-line:hover:not(:disabled) { background: var(--black); color: var(--white); }
+ 
+    .badge { display: inline-block; background: var(--badge); color: #fff; font-size: 12px; line-height: 1; padding: 6px 9px; letter-spacing: 0.04em; white-space: nowrap; }
+ 
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 52px; padding: 0 36px; font-size: 15px; font-weight: 700; letter-spacing: 0.08em; border: 1px solid var(--fg); border-radius: 0; background: var(--fg); color: var(--bg); transition: background .18s, color .18s; }
+    .btn:hover:not(:disabled) { background: var(--bg); color: var(--fg); }
+    .btn:disabled { background: var(--bg); color: var(--disabled); border-color: var(--line); cursor: not-allowed; }
+    .btn-line { background: var(--bg); color: var(--fg); }
+    .btn-line:hover:not(:disabled) { background: var(--fg); color: var(--bg); }
     .btn-line svg { width: 18px; height: 18px; }
     .btn-line.is-on svg path { fill: currentColor; }
-
-    .link-btn {
-      background: none; border: 0; padding: 4px 0; font-size: 13px; text-decoration: underline;
-      text-underline-offset: 3px;
-    }
+    .link-btn { background: none; border: 0; padding: 4px 0; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
     .link-btn:hover { text-decoration-thickness: 2px; }
-
+ 
     /* ---------- Lookbook banners ---------- */
     .banners { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding-top: 56px; }
-    .banner {
-      position: relative; isolation: isolate; overflow: hidden;
-      min-height: 306px; padding: 24px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-      color: #fff; text-decoration: none; transition: filter .35s ease;
-    }
+    .banner { position: relative; isolation: isolate; overflow: hidden; min-height: 306px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; text-decoration: none; transition: filter .35s ease; }
+    :root[data-theme="dark"] .banner { outline: 1px solid var(--line); outline-offset: -1px; }
     .banner::before { content: ""; position: absolute; inset: 0; z-index: -3; }
     .banner-a::before { background: linear-gradient(112deg, #0f1113 0 46%, #33383d 46% 100%); }
     .banner-b::before { background: linear-gradient(248deg, #0f1113 0 46%, #33383d 46% 100%); }
-    .banner::after {
-      content: ""; position: absolute; inset: 0; z-index: -1; opacity: .22; mix-blend-mode: overlay;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    }
-    .banner .ring {
-      position: absolute; z-index: -2; width: 260px; height: 260px; border-radius: 50%;
-      border: 1px solid rgba(255,255,255,.3); top: 50%; left: 50%; transform: translate(-50%, -50%);
-    }
+    .banner::after { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .22; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+    .banner .ring { position: absolute; z-index: -2; width: 260px; height: 260px; border-radius: 50%; border: 1px solid rgba(255,255,255,.3); top: 50%; left: 50%; transform: translate(-50%, -50%); }
     .banner-a .ring { left: 34%; }
     .banner-b .ring { left: 66%; }
     .banner .frame { position: absolute; inset: 14px; z-index: -2; border: 1px solid rgba(255,255,255,.16); }
     .banner h3 { font-size: 30px; font-weight: 600; line-height: 1.35; letter-spacing: 0.03em; }
     .banner p { font-size: 14px; margin-top: 8px; }
     .banner:hover { filter: invert(1); }
-
+ 
     /* ---------- Randomizer ---------- */
-    .stage {
-      position: relative; max-width: 760px; margin: 0 auto;
-      min-height: 240px; padding: 56px 32px 40px;
-      border: 1px solid var(--line); background: var(--white); color: var(--black);
-      display: flex; align-items: center; justify-content: center; text-align: center;
-      transition: background .25s ease, color .25s ease, border-color .25s ease;
-    }
+    .stage { position: relative; max-width: 760px; margin: 0 auto; min-height: 240px; padding: 56px 32px 40px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); display: flex; align-items: center; justify-content: center; text-align: center; transition: background .25s ease, color .25s ease, border-color .25s ease; }
     .stage .badge { position: absolute; top: 14px; right: 14px; }
-    .stage-brand {
-      font-size: clamp(2rem, 7vw, 4.4rem); font-weight: 800; line-height: 1.15; letter-spacing: -0.01em;
-      overflow-wrap: anywhere;
-    }
+    .stage-brand { font-size: clamp(2rem, 7vw, 4.4rem); font-weight: 800; line-height: 1.15; letter-spacing: -0.01em; overflow-wrap: anywhere; }
     .stage-brand.is-idle { font-size: clamp(1.1rem, 3vw, 1.4rem); font-weight: 500; color: var(--muted); letter-spacing: 0.06em; }
-    .stage.is-result { background: var(--black); color: var(--white); border-color: var(--black); }
-    .stage.is-result .badge { background: var(--white); color: var(--black); }
-    .stage.is-empty { border-color: var(--black); }
-    .stage.is-empty .stage-brand { color: var(--black); }
-
+    .stage-brand.is-msg { font-size: clamp(1.2rem, 3.4vw, 1.8rem); font-weight: 700; }
+    .stage.is-result { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+    .stage.is-result .badge { background: var(--bg); color: var(--fg); }
+    .stage.is-empty { border-color: var(--fg); }
+ 
     .actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
     .fav-line { text-align: center; margin-top: 16px; font-size: 13px; color: var(--muted); }
-
-    .panel { border: 1px solid var(--line); padding: 32px; background: var(--white); }
+ 
+    .panel { border: 1px solid var(--line); padding: 32px; background: var(--bg); }
     .brands-panel { max-width: 900px; margin: 56px auto 0; }
     .panel-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 24px; margin-bottom: 20px; }
     .panel-title { font-size: 17px; font-weight: 800; letter-spacing: 0.04em; }
     .panel-title small { font-size: 13px; font-weight: 500; color: var(--muted); margin-left: 10px; letter-spacing: 0.02em; }
     .panel-ctrls { display: flex; gap: 20px; }
-
+ 
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chip {
-      padding: 9px 16px; font-size: 14px; line-height: 1.3; border-radius: 0;
-      border: 1px solid var(--black); background: var(--black); color: var(--white);
-      transition: background .15s, color .15s, border-color .15s; user-select: none;
-    }
-    .chip[aria-pressed="true"]:hover { background: var(--white); color: var(--black); }
-    .chip[aria-pressed="false"] {
-      background: var(--white); color: #8a8a8a; border-color: var(--line); text-decoration: line-through;
-      text-decoration-color: #c4c4c4;
-    }
-    .chip[aria-pressed="false"]:hover { border-color: var(--black); color: var(--black); text-decoration: none; }
+    .chip-group { display: inline-flex; }
+    .chip { padding: 9px 16px; font-size: 14px; line-height: 1.3; border-radius: 0; border: 1px solid var(--fg); background: var(--fg); color: var(--bg); transition: background .15s, color .15s, border-color .15s; user-select: none; }
+    .chip[aria-pressed="true"]:hover { background: var(--bg); color: var(--fg); }
+    .chip[aria-pressed="false"] { background: var(--bg); color: var(--off-text); border-color: var(--line); text-decoration: line-through; text-decoration-color: var(--line); }
+    .chip[aria-pressed="false"]:hover { border-color: var(--fg); color: var(--fg); text-decoration: none; }
+    .chip-x { width: 34px; margin-left: -1px; padding: 0; border: 1px solid var(--line); background: var(--bg); color: var(--muted); font-size: 16px; line-height: 1; }
+    .chip-x:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
     .chips-empty { font-size: 13px; color: var(--muted); }
-
+ 
     .add-row { display: flex; gap: 8px; margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--line); }
-    .add-row input {
-      flex: 1; min-width: 0; height: 46px; padding: 0 14px; border: 1px solid var(--line);
-      border-radius: 0; background: var(--white); outline: none; transition: border-color .15s;
-    }
-    .add-row input:focus { border-color: var(--black); }
+    .add-row input { flex: 1; min-width: 0; height: 46px; padding: 0 14px; border: 1px solid var(--line); border-radius: 0; background: var(--bg); outline: none; transition: border-color .15s; }
+    .add-row input:focus { border-color: var(--fg); }
     .add-row .btn { height: 46px; padding: 0 24px; font-size: 14px; }
-
+    .save-note { margin-top: 12px; font-size: 12px; color: var(--muted); }
+ 
     /* ---------- Time + rates ---------- */
     .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
     .duo > section { display: flex; flex-direction: column; }
     .duo .panel { flex: 1; display: flex; flex-direction: column; }
     .duo .section-title { font-size: 22px; margin-bottom: 24px; }
-
     .time-panel { align-items: center; justify-content: center; text-align: center; gap: 14px; }
     .clock { font-size: clamp(2.6rem, 7vw, 4.4rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-    .date-line { font-size: 17px; font-weight: 700; letter-spacing: 0.06em; }
+    .date-line { font-size: 17px; font-weight: 700; letter-spacing: 0.04em; }
     .offset-line { font-size: 13px; color: var(--muted); }
-
+ 
     .rate-controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between; }
     .seg { display: flex; }
-    .seg button {
-      height: 40px; padding: 0 14px; font-size: 13px; font-weight: 600; background: var(--white);
-      border: 1px solid var(--line); border-radius: 0; margin-left: -1px; transition: background .15s, color .15s;
-    }
+    .seg button { height: 40px; padding: 0 14px; font-size: 13px; font-weight: 600; background: var(--bg); border: 1px solid var(--line); border-radius: 0; margin-left: -1px; transition: background .15s, color .15s; }
     .seg button:first-child { margin-left: 0; }
-    .seg button:hover { border-color: var(--black); position: relative; }
-    .seg button[aria-pressed="true"] { background: var(--black); color: var(--white); border-color: var(--black); position: relative; }
+    .seg button:hover { border-color: var(--fg); position: relative; }
+    .seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); position: relative; }
     .amount { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
-    .amount input {
-      width: 140px; height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 0;
-      background: var(--white); color: var(--black); outline: none; font-size: 15px; font-variant-numeric: tabular-nums;
-    }
-    .amount input:focus { border-color: var(--black); }
-    .rate-list { margin-top: 20px; border-top: 1px solid var(--black); }
-    .rate-list li {
-      display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; align-items: baseline;
-      padding: 14px 0; border-bottom: 1px solid var(--line);
-    }
+    .amount input { width: 140px; height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 0; background: var(--bg); color: var(--fg); outline: none; font-size: 15px; font-variant-numeric: tabular-nums; }
+    .amount input:focus { border-color: var(--fg); }
+    .rate-list { margin-top: 20px; border-top: 1px solid var(--fg); }
+    .rate-list li { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line); }
     .rate-name { font-weight: 700; font-size: 15px; }
     .rate-name small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 8px; }
     .rate-val { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; letter-spacing: 0; }
     .rate-sub { grid-column: 1 / -1; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
     .rate-foot { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: auto; padding-top: 16px; font-size: 12px; color: var(--muted); }
-
+ 
     /* ---------- News ---------- */
     .news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    .news-card {
-      border: 1px solid var(--line); padding: 24px; display: flex; flex-direction: column; gap: 12px;
-      background: var(--white); color: var(--black); transition: background .18s, color .18s, border-color .18s;
-    }
+    .news-card { border: 1px solid var(--line); display: flex; flex-direction: column; background: var(--bg); color: var(--fg); text-decoration: none; transition: background .18s, color .18s, border-color .18s; }
+    .news-img { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--strip); border-bottom: 1px solid var(--line); }
+    .news-img img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1); transition: filter .35s ease; }
+    .news-img.is-fallback::after { content: "555 ☦"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 28px; font-weight: 900; color: var(--muted); letter-spacing: -0.01em; }
+    .news-body { padding: 22px 24px 24px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
     .news-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-    .news-card h3 { font-size: 17px; font-weight: 800; line-height: 1.55; letter-spacing: 0.03em; }
+    .news-card h3 { font-size: 17px; font-weight: 800; line-height: 1.55; letter-spacing: 0.02em; }
     .news-card p { font-size: 13px; color: var(--muted); line-height: 1.8; }
-    .news-card:hover { background: var(--black); color: var(--white); border-color: var(--black); }
-    .news-card:hover .news-meta, .news-card:hover p { color: #bdbdbd; }
-    .news-card:hover .badge { background: var(--white); color: var(--black); }
-
+    .news-src { margin-top: auto; padding-top: 4px; font-size: 12px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+    .news-card:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+    .news-card:hover .news-meta, .news-card:hover p, .news-card:hover .news-src { color: var(--inv-muted); }
+    .news-card:hover .badge { background: var(--bg); color: var(--fg); }
+    .news-card:hover .news-img img { filter: none; }
+ 
     /* ---------- Stores ---------- */
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 32px; }
+    .filter-btn { padding: 8px 16px; font-size: 13px; border: 1px solid var(--line); background: var(--bg); border-radius: 0; transition: background .15s, color .15s, border-color .15s; }
+    .filter-btn:hover { border-color: var(--fg); }
+    .filter-btn[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
     .store-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    .store {
-      border: 1px solid var(--line); padding: 24px; display: flex; flex-direction: column; gap: 8px;
-      transition: background .18s, color .18s, border-color .18s;
-    }
-    .store h3 { font-size: 18px; font-weight: 800; letter-spacing: 0.05em; }
-    .store p { font-size: 13px; color: var(--muted); line-height: 1.8; }
-    .store a { margin-top: auto; padding-top: 12px; font-size: 13px; text-underline-offset: 3px; width: fit-content; }
-    .store:hover { background: var(--black); color: var(--white); border-color: var(--black); }
-    .store:hover p { color: #bdbdbd; }
-
+    .store { border: 1px solid var(--line); padding: 24px; display: flex; flex-direction: column; gap: 10px; background: var(--bg); transition: background .18s, color .18s, border-color .18s; }
+    .store .badge { align-self: flex-start; }
+    .store h3 { font-size: 18px; font-weight: 800; letter-spacing: 0.03em; line-height: 1.4; }
+    .store address { font-style: normal; font-size: 13px; line-height: 1.7; }
+    .store .store-brands { font-size: 13px; font-weight: 600; }
+    .store .store-note { font-size: 12px; color: var(--muted); line-height: 1.8; }
+    .store a { margin-top: auto; padding-top: 10px; font-size: 13px; text-underline-offset: 3px; width: fit-content; }
+    .store:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+    .store:hover .store-note { color: var(--inv-muted); }
+    .store:hover .badge { background: var(--bg); color: var(--fg); }
+    .stores-foot { margin-top: 28px; font-size: 12px; color: var(--muted); text-align: center; line-height: 1.9; max-width: 820px; margin-left: auto; margin-right: auto; }
+ 
     /* ---------- Footer ---------- */
     .site-footer { margin-top: 120px; border-top: 1px solid var(--line); padding: 48px 0 40px; }
     .foot-inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 32px; }
@@ -285,60 +235,53 @@
     .foot-links a { text-decoration: none; }
     .foot-links a:hover { text-decoration: underline; text-underline-offset: 3px; }
     .foot-note { margin-top: 32px; font-size: 12px; color: var(--muted); line-height: 1.9; }
-
-    /* ---------- Cookie banner ---------- */
-    .cookie {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 80;
-      background: var(--white); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(0,0,0,.06);
-    }
-    .cookie-inner {
-      max-width: none; padding: 24px 32px; display: grid; grid-template-columns: 1fr auto; gap: 16px 48px; align-items: center;
-    }
+ 
+    /* ---------- Cookie ---------- */
+    .cookie { position: fixed; left: 0; right: 0; bottom: 0; z-index: 80; background: var(--bg); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px var(--shadow); }
+    .cookie-inner { padding: 24px 32px; display: grid; grid-template-columns: 1fr auto; gap: 16px 48px; align-items: center; }
     .cookie h2 { font-size: 16px; font-weight: 800; letter-spacing: 0.04em; margin-bottom: 8px; }
     .cookie p { font-size: 12px; line-height: 1.8; max-width: 820px; }
     .cookie-btns { display: flex; align-items: center; gap: 16px; }
-    .cookie-btns .btn { height: 40px; min-width: 184px; padding: 0 20px; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; background: var(--white); color: var(--black); }
-    .cookie-btns .btn:hover { background: var(--black); color: var(--white); }
+    .cookie-btns .btn { height: 40px; min-width: 184px; padding: 0 20px; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; background: var(--bg); color: var(--fg); }
+    .cookie-btns .btn:hover { background: var(--fg); color: var(--bg); }
     .cookie-btns .link-btn { margin-right: 24px; }
-
-    dialog.cookie-dialog {
-      border: 1px solid var(--black); padding: 0; width: min(520px, calc(100% - 32px)); background: var(--white); color: var(--black);
-    }
-    dialog.cookie-dialog::backdrop { background: rgba(0,0,0,.45); }
+ 
+    dialog.cookie-dialog { border: 1px solid var(--fg); padding: 0; width: min(520px, calc(100% - 32px)); background: var(--bg); color: var(--fg); }
+    dialog.cookie-dialog::backdrop { background: rgba(0,0,0,.55); }
     .dlg-body { padding: 32px; }
     .dlg-body h2 { font-size: 20px; font-weight: 800; letter-spacing: 0.04em; margin-bottom: 8px; }
     .dlg-body > p { font-size: 13px; color: var(--muted); }
     .pref { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding: 18px 0; border-bottom: 1px solid var(--line); }
-    .pref:first-of-type { margin-top: 20px; border-top: 1px solid var(--black); }
+    .pref:first-of-type { margin-top: 20px; border-top: 1px solid var(--fg); }
     .pref strong { display: block; font-size: 14px; }
     .pref span { font-size: 12px; color: var(--muted); line-height: 1.7; display: block; }
-    .pref input { width: 20px; height: 20px; margin-top: 2px; accent-color: #000; flex: none; }
+    .pref input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--fg); flex: none; }
     .dlg-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
     .dlg-actions .btn { height: 44px; padding: 0 24px; font-size: 13px; }
-
+ 
     /* ---------- Toast ---------- */
-    .toast {
-      position: fixed; left: 50%; top: calc(var(--header-h) + 56px); z-index: 90; transform: translate(-50%, -8px);
-      background: var(--black); color: var(--white); padding: 12px 22px; font-size: 13px;
-      opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; max-width: calc(100% - 32px); text-align: center;
-    }
+    .toast { position: fixed; left: 50%; top: calc(var(--header-h) + 56px); z-index: 90; transform: translate(-50%, -8px); background: var(--fg); color: var(--bg); padding: 12px 22px; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; max-width: calc(100% - 32px); text-align: center; }
     .toast.is-show { opacity: 1; transform: translate(-50%, 0); }
-
+ 
     /* ---------- Responsive ---------- */
-    @media (max-width: 1100px) {
+    @media (max-width: 1200px) {
       .hdr-inner { gap: 20px; }
+      .main-nav a { padding: 8px 9px; font-size: 13px; }
+      .main-nav a::after { left: 9px; right: 9px; }
+    }
+    @media (max-width: 1100px) {
       .news-grid, .store-grid { grid-template-columns: repeat(2, 1fr); }
     }
-    @media (max-width: 960px) {
+    @media (max-width: 980px) {
       .hdr-inner { grid-template-columns: 1fr auto; grid-template-rows: var(--header-h) auto; height: auto; padding: 0 16px; gap: 0 12px; }
       .main-nav { grid-column: 1 / -1; grid-row: 2; margin: 0 -16px; padding: 0 16px; overflow-x: auto; border-top: 1px solid var(--line); scrollbar-width: none; }
       .main-nav::-webkit-scrollbar { display: none; }
-      .main-nav a { padding: 12px 12px; }
-      .main-nav a::after { bottom: 4px; }
+      .main-nav a { padding: 12px 12px; font-size: 14px; }
+      .main-nav a::after { bottom: 4px; left: 12px; right: 12px; }
       .section { scroll-margin-top: calc(var(--header-h) + 52px); }
       .topbar-inner { padding: 0 16px; }
       .duo { grid-template-columns: 1fr; }
-      .cookie-inner { grid-template-columns: 1fr; padding: 20px 20px; }
+      .cookie-inner { grid-template-columns: 1fr; padding: 20px; }
       .cookie-btns { flex-wrap: wrap; }
     }
     @media (max-width: 700px) {
@@ -354,6 +297,7 @@
       .cookie-btns .btn { flex: 1 1 130px; min-width: 0; }
       .cookie-btns .link-btn { width: 100%; text-align: left; margin-right: 0; }
       .logo-text { font-size: 26px; }
+      .icon-btn { width: 36px; }
       .site-footer { margin-top: 80px; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -363,274 +307,359 @@
   </style>
 </head>
 <body>
-
-<!-- SVG sprites -->
+ 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
     <symbol id="i-search" viewBox="0 0 24 24"><path d="M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.3 4.3-1.4 1.4-4.3-4.3A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="4.5"/><path d="M3.5 21c0-4.7 3.8-8 8.5-8s8.5 3.3 8.5 8z"/></symbol>
     <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21.2 3.9 13.4A5.6 5.6 0 0 1 12 5.6a5.6 5.6 0 0 1 8.1 7.8z"/></symbol>
     <symbol id="i-cart" viewBox="0 0 24 24"><path d="M1.5 2.5h3.6l.7 2.5H22l-2.4 9.2H8.2l.5 2h11v2H7.2L3.6 4.5H1.5z"/><circle cx="9" cy="20.8" r="1.7"/><circle cx="18" cy="20.8" r="1.7"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M11 1.5h2v3.2h-2zM11 19.3h2v3.2h-2zM1.5 11h3.2v2H1.5zM19.3 11h3.2v2h-3.2zM4.2 5.6l1.4-1.4 2.3 2.3-1.4 1.4zM16.1 17.5l1.4-1.4 2.3 2.3-1.4 1.4zM4.2 18.4l2.3-2.3 1.4 1.4-2.3 2.3zM16.1 6.5l2.3-2.3 1.4 1.4-2.3 2.3z"/></symbol>
   </defs>
 </svg>
-
+ 
 <!-- Top strip: language -->
 <div class="topbar">
   <div class="topbar-inner">
     <div class="lang">
       <button class="lang-btn" id="langBtn" aria-haspopup="true" aria-expanded="false" aria-controls="langMenu">
-        日本語
+        <span id="langLabel">日本語</span>
         <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4"/></svg>
       </button>
-      <ul class="lang-menu" id="langMenu" hidden>
-        <li><span>日本語</span><span aria-hidden="true">✓</span></li>
-      </ul>
+      <div class="lang-menu" id="langMenu" hidden>
+        <button type="button" data-lang="ja"><span>日本語</span><span class="lang-check" aria-hidden="true"></span></button>
+        <button type="button" data-lang="ru"><span>Русский</span><span class="lang-check" aria-hidden="true"></span></button>
+      </div>
     </div>
   </div>
 </div>
-
+ 
 <!-- Header -->
 <header class="site-header">
   <div class="hdr-inner">
-    <a class="logo" href="#top" aria-label="555 ☦ トップへ">
-      <svg viewBox="0 0 22 30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square">
-        <path d="M11 2V28M8 6H14M4 11H18M7 20.5L15 23.5"/>
-      </svg>
+    <a class="logo" href="#top" data-i18n-attr="aria-label:logoAria">
+      <svg viewBox="0 0 22 30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"><path d="M11 2V28M8 6H14M4 11H18M7 20.5L15 23.5"/></svg>
       <span class="logo-text">555</span>
     </a>
-
-    <nav class="main-nav" aria-label="メインナビゲーション">
+ 
+    <nav class="main-nav" data-i18n-attr="aria-label:navAria">
       <ul>
-        <li><a href="#random" data-target="random">ランダム選出</a></li>
-        <li><a href="#news" data-target="news">ファッションニュース</a></li>
-        <li><a href="#rates" data-target="rates">為替レート</a></li>
-        <li><a href="#time" data-target="time">東京時間</a></li>
-        <li><a href="#collection" data-target="collection">コレクション</a></li>
-        <li><a href="#stores" data-target="stores">店舗情報</a></li>
+        <li><a href="#random" data-target="random" data-i18n="navRandom"></a></li>
+        <li><a href="#news" data-target="news" data-i18n="navNews"></a></li>
+        <li><a href="#rates" data-target="rates" data-i18n="navRates"></a></li>
+        <li><a href="#time" data-target="time" data-i18n="navTime"></a></li>
+        <li><a href="#collection" data-target="collection" data-i18n="navCollection"></a></li>
+        <li><a href="#stores" data-target="stores" data-i18n="navStores"></a></li>
       </ul>
     </nav>
-
+ 
     <div class="hdr-tools">
-      <button class="icon-btn" id="searchBtn" aria-label="ブランドを検索" aria-expanded="false" aria-controls="searchBar"><svg class="ic"><use href="#i-search"/></svg></button>
-      <button class="icon-btn" id="userBtn" aria-label="マイページ"><svg class="ic"><use href="#i-user"/></svg></button>
-      <button class="icon-btn" id="favHeaderBtn" aria-label="お気に入り"><svg class="ic"><use href="#i-heart"/></svg><span class="count" id="favCount">0</span></button>
-      <button class="icon-btn" id="cartBtn" aria-label="カート"><svg class="ic"><use href="#i-cart"/></svg><span class="count" id="cartCount">0</span></button>
+      <button class="icon-btn" id="searchBtn" data-i18n-attr="aria-label:icSearch" aria-expanded="false" aria-controls="searchBar"><svg class="ic"><use href="#i-search"/></svg></button>
+      <button class="icon-btn" id="themeBtn" aria-label="Theme"><svg class="ic ic-moon"><use href="#i-moon"/></svg><svg class="ic ic-sun"><use href="#i-sun"/></svg></button>
+      <button class="icon-btn" id="userBtn" data-i18n-attr="aria-label:icUser"><svg class="ic"><use href="#i-user"/></svg></button>
+      <button class="icon-btn" id="favHeaderBtn" data-i18n-attr="aria-label:icFav"><svg class="ic"><use href="#i-heart"/></svg><span class="count" id="favCount">0</span></button>
+      <button class="icon-btn" id="cartBtn" data-i18n-attr="aria-label:icCart"><svg class="ic"><use href="#i-cart"/></svg><span class="count">0</span></button>
     </div>
   </div>
-
+ 
   <div class="searchbar" id="searchBar" hidden>
     <div class="searchbar-inner">
-      <label class="sr-only" for="brandSearch">ブランドを検索</label>
-      <input id="brandSearch" type="search" placeholder="ブランド名で絞り込む" autocomplete="off">
-      <button class="btn btn-line" id="searchClose" style="height:44px;padding:0 20px;font-size:13px">閉じる</button>
+      <label class="sr-only" for="brandSearch" data-i18n="searchLabel"></label>
+      <input id="brandSearch" type="search" data-i18n-attr="placeholder:searchPh" autocomplete="off">
+      <button class="btn btn-line" id="searchClose" style="height:44px;padding:0 20px;font-size:13px" data-i18n="close"></button>
     </div>
   </div>
 </header>
-
+ 
 <main id="top">
-
+ 
   <!-- Lookbook banners -->
-  <section id="collection" class="wrap banners section" style="padding-top:56px" aria-label="コレクション">
+  <section id="collection" class="wrap banners section" style="padding-top:56px">
     <a class="banner banner-a" href="#random">
       <span class="frame" aria-hidden="true"></span><span class="ring" aria-hidden="true"></span>
       <h3>The Black-and-White Realism</h3>
-      <p>ルックブック</p>
+      <p data-i18n="bannerLook"></p>
     </a>
     <a class="banner banner-b" href="#random">
       <span class="frame" aria-hidden="true"></span><span class="ring" aria-hidden="true"></span>
       <h3>The Black-and-White Realism</h3>
-      <p>2026年秋冬コレクション</p>
+      <p data-i18n="bannerAW"></p>
     </a>
   </section>
-
+ 
   <!-- Randomizer -->
   <section id="random" class="wrap section">
     <div class="section-head">
-      <h2 class="section-title">ランダム選出</h2>
-      <p class="section-lead">選択中のブランドから、ひとつを無作為に選びます。</p>
+      <h2 class="section-title" data-i18n="rndTitle"></h2>
+      <p class="section-lead" data-i18n="rndLead"></p>
     </div>
-
+ 
     <div class="stage" id="stage">
-      <span class="badge" id="stateBadge">待機中</span>
-      <div id="result" class="stage-brand is-idle">ボタンを押してください</div>
+      <span class="badge" id="stateBadge"></span>
+      <div id="result" class="stage-brand is-idle"></div>
     </div>
     <span class="sr-only" id="resultLive" aria-live="polite"></span>
-
+ 
     <div class="actions">
-      <button id="generateBtn" class="btn">ブランドを選ぶ</button>
+      <button id="generateBtn" class="btn"></button>
       <button id="favBtn" class="btn btn-line" disabled>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5 4.4 13A5.2 5.2 0 0 1 12 5.9 5.2 5.2 0 0 1 19.6 13z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-        <span id="favBtnLabel">お気に入りに追加</span>
+        <span id="favBtnLabel"></span>
       </button>
     </div>
     <p class="fav-line" id="favLine" hidden></p>
-
+ 
     <div class="panel brands-panel">
       <div class="panel-head">
-        <h3 class="panel-title">選出対象のブランド<small id="brandCount">26 / 26</small></h3>
+        <h3 class="panel-title"><span data-i18n="panelTitle"></span><small id="brandCount"></small></h3>
         <div class="panel-ctrls">
-          <button class="link-btn" id="selectAll">すべて選択</button>
-          <button class="link-btn" id="selectNone">すべて解除</button>
+          <button class="link-btn" id="selectAll" data-i18n="selectAll"></button>
+          <button class="link-btn" id="selectNone" data-i18n="selectNone"></button>
         </div>
       </div>
-      <div id="chipsContainer" class="chips" role="group" aria-label="選出対象のブランド"></div>
-
+      <div id="chipsContainer" class="chips" role="group" data-i18n-attr="aria-label:panelTitle"></div>
+ 
       <div class="add-row">
-        <label class="sr-only" for="newBrandInput">ブランドを追加</label>
-        <input type="text" id="newBrandInput" placeholder="ブランド名を追加（英字）" autocomplete="off">
-        <button class="btn" id="addBrandBtn">追加</button>
+        <label class="sr-only" for="newBrandInput" data-i18n="addLabel"></label>
+        <input type="text" id="newBrandInput" data-i18n-attr="placeholder:addPh" autocomplete="off">
+        <button class="btn" id="addBrandBtn" data-i18n="addBtn"></button>
       </div>
+      <p class="save-note" data-i18n="saveNote"></p>
     </div>
   </section>
-
+ 
   <!-- Time + rates -->
   <div class="wrap section duo">
     <section id="time" aria-labelledby="timeTitle" style="scroll-margin-top:calc(var(--header-h) + 8px)">
-      <h2 class="section-title" id="timeTitle">東京の現在時刻</h2>
+      <h2 class="section-title" id="timeTitle" data-i18n="timeTitle"></h2>
       <div class="panel time-panel">
-        <span class="badge">日本標準時 JST（UTC+9）</span>
+        <span class="badge" data-i18n="jstBadge"></span>
         <div class="clock" id="clock" role="timer" aria-live="off">--:--:--</div>
         <div class="date-line" id="dateLine">&nbsp;</div>
         <div class="offset-line" id="offsetLine">&nbsp;</div>
       </div>
     </section>
-
+ 
     <section id="rates" aria-labelledby="ratesTitle" style="scroll-margin-top:calc(var(--header-h) + 8px)">
-      <h2 class="section-title" id="ratesTitle">為替レート</h2>
+      <h2 class="section-title" id="ratesTitle" data-i18n="ratesTitle"></h2>
       <div class="panel">
         <div class="rate-controls">
-          <div class="seg" role="group" aria-label="基準通貨" id="baseSeg"></div>
-          <label class="amount">金額
+          <div class="seg" role="group" data-i18n-attr="aria-label:baseAria" id="baseSeg"></div>
+          <label class="amount"><span data-i18n="amount"></span>
             <input id="amount" type="number" inputmode="decimal" min="0" step="any" value="10000">
           </label>
         </div>
         <ul class="rate-list" id="rateList"></ul>
         <div class="rate-foot">
-          <span id="rateStatus">読み込み中…</span>
-          <button class="link-btn" id="rateRefresh">更新</button>
+          <span id="rateStatus"></span>
+          <button class="link-btn" id="rateRefresh" data-i18n="refresh"></button>
         </div>
       </div>
     </section>
   </div>
-
+ 
   <!-- News -->
   <section id="news" class="wrap section">
     <div class="section-head">
-      <h2 class="section-title">最新ファッションニュース</h2>
-      <p class="section-lead">※ 掲載内容はデザイン確認用のサンプルです。</p>
+      <h2 class="section-title" data-i18n="newsTitle"></h2>
+      <p class="section-lead" data-i18n="newsLead"></p>
     </div>
-    <div class="news-grid">
-      <article class="news-card">
-        <div class="news-meta"><span class="badge">コレクション</span><time datetime="2026-09-27">2026.09.27</time></div>
-        <h3>モノクロームが主役に。秋冬のテーラリングを見直す</h3>
-        <p>黒と白だけで構成された装いが、ふたたびランウェイの中心へ。素材の質感と縫製の精度が印象を決めます。</p>
-      </article>
-      <article class="news-card">
-        <div class="news-meta"><span class="badge">マーケット</span><time datetime="2026-09-25">2026.09.25</time></div>
-        <h3>日本のアーカイブ市場に、海外からの需要が集まる</h3>
-        <p>90年代から2000年代の国内デザイナーズ作品が、国境を越えて評価されています。</p>
-      </article>
-      <article class="news-card">
-        <div class="news-meta"><span class="badge">ストリート</span><time datetime="2026-09-23">2026.09.23</time></div>
-        <h3>原宿・表参道で、秋のポップアップが相次いで開催</h3>
-        <p>期間限定の店舗が並び、街歩きの楽しみが広がっています。開催日程は各ブランドの発表をご確認ください。</p>
-      </article>
-      <article class="news-card">
-        <div class="news-meta"><span class="badge">サステナビリティ</span><time datetime="2026-09-20">2026.09.20</time></div>
-        <h3>再生素材は、ラグジュアリーの新しい基準になるか</h3>
-        <p>環境への配慮と上質な仕上がりを両立させる試みが、ハイブランドの間で進んでいます。</p>
-      </article>
-      <article class="news-card">
-        <div class="news-meta"><span class="badge">カルチャー</span><time datetime="2026-09-18">2026.09.18</time></div>
-        <h3>モードとストリートの境界線が、ふたたび曖昧に</h3>
-        <p>異なる文脈のブランドが交差し、新しいスタイルが生まれています。</p>
-      </article>
-      <article class="news-card">
-        <div class="news-meta"><span class="badge">デザイナー</span><time datetime="2026-09-15">2026.09.15</time></div>
-        <h3>東京から世界へ。若手デザイナーが注目を集める理由</h3>
-        <p>少量生産と独自の美意識を武器に、国内外のバイヤーから支持を広げています。</p>
-      </article>
-    </div>
+    <div class="news-grid" id="newsGrid"></div>
   </section>
-
+ 
   <!-- Stores -->
   <section id="stores" class="wrap section">
     <div class="section-head">
-      <h2 class="section-title">店舗情報</h2>
-      <p class="section-lead">ブランド巡りにおすすめの主なエリアです。</p>
+      <h2 class="section-title" data-i18n="storesTitle"></h2>
+      <p class="section-lead" data-i18n="storesLead"></p>
     </div>
-    <div class="store-grid">
-      <div class="store"><h3>渋谷</h3><p>セレクトショップと古着店が密集する、東京屈指のファッションエリア。</p><a href="https://www.google.com/maps/search/?api=1&query=%E6%B8%8B%E8%B0%B7+%E3%83%95%E3%82%A1%E3%83%83%E3%82%B7%E3%83%A7%E3%83%B3" target="_blank" rel="noopener">地図で見る</a></div>
-      <div class="store"><h3>原宿・表参道</h3><p>ストリートからハイブランドまで、旗艦店が並ぶ通り。</p><a href="https://www.google.com/maps/search/?api=1&query=%E8%A1%A8%E5%8F%82%E9%81%93+%E3%83%95%E3%82%A1%E3%83%83%E3%82%B7%E3%83%A7%E3%83%B3" target="_blank" rel="noopener">地図で見る</a></div>
-      <div class="store"><h3>代官山</h3><p>落ち着いた街並みに、個性的なブティックが点在します。</p><a href="https://www.google.com/maps/search/?api=1&query=%E4%BB%A3%E5%AE%98%E5%B1%B1+%E3%83%95%E3%82%A1%E3%83%83%E3%82%B7%E3%83%A7%E3%83%B3" target="_blank" rel="noopener">地図で見る</a></div>
-      <div class="store"><h3>銀座</h3><p>百貨店とラグジュアリーブランドの路面店が集まるエリア。</p><a href="https://www.google.com/maps/search/?api=1&query=%E9%8A%80%E5%BA%A7+%E3%83%95%E3%82%A1%E3%83%83%E3%82%B7%E3%83%A7%E3%83%B3" target="_blank" rel="noopener">地図で見る</a></div>
-      <div class="store"><h3>高円寺・下北沢</h3><p>古着とアーカイブ探しに向いた、個人経営の店が多い街。</p><a href="https://www.google.com/maps/search/?api=1&query=%E4%B8%8B%E5%8C%97%E6%B2%A2+%E5%8F%A4%E7%9D%80" target="_blank" rel="noopener">地図で見る</a></div>
-      <div class="store"><h3>心斎橋（大阪）</h3><p>西日本を代表するショッピングエリア。ブランド店とセレクトショップが揃います。</p><a href="https://www.google.com/maps/search/?api=1&query=%E5%BF%83%E6%96%8E%E6%A9%8B+%E3%83%95%E3%82%A1%E3%83%83%E3%82%B7%E3%83%A7%E3%83%B3" target="_blank" rel="noopener">地図で見る</a></div>
-    </div>
+    <div class="filters" id="storeFilters" role="group" data-i18n-attr="aria-label:storesTitle"></div>
+    <div class="store-grid" id="storeGrid"></div>
+    <p class="stores-foot" data-i18n="storesFoot"></p>
   </section>
 </main>
-
-<!-- Footer -->
+ 
 <footer class="site-footer">
   <div class="wrap">
     <div class="foot-inner">
-      <a class="logo" href="#top" aria-label="555 ☦ トップへ">
-        <svg viewBox="0 0 22 30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square">
-          <path d="M11 2V28M8 6H14M4 11H18M7 20.5L15 23.5"/>
-        </svg>
+      <a class="logo" href="#top" data-i18n-attr="aria-label:logoAria">
+        <svg viewBox="0 0 22 30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"><path d="M11 2V28M8 6H14M4 11H18M7 20.5L15 23.5"/></svg>
         <span class="logo-text">555</span>
       </a>
-      <nav class="foot-links" aria-label="フッター">
-        <a href="#random">ランダム選出</a>
-        <a href="#news">ファッションニュース</a>
-        <a href="#rates">為替レート</a>
-        <a href="#time">東京時間</a>
-        <a href="#stores">店舗情報</a>
-        <a href="#" id="footPrivacy">プライバシー設定</a>
+      <nav class="foot-links">
+        <a href="#random" data-i18n="navRandom"></a>
+        <a href="#news" data-i18n="navNews"></a>
+        <a href="#rates" data-i18n="navRates"></a>
+        <a href="#time" data-i18n="navTime"></a>
+        <a href="#stores" data-i18n="navStores"></a>
+        <a href="#" id="footPrivacy" data-i18n="privacySettings"></a>
       </nav>
     </div>
-    <p class="foot-note">為替レートは参考値です。実際の取引レートとは異なる場合があります。<br>© 2026 555 ☦ All rights reserved.</p>
+    <p class="foot-note"><span data-i18n="footNote"></span><br>© 2026 555 ☦ All rights reserved.</p>
   </div>
 </footer>
-
+ 
 <!-- Cookie banner -->
-<div class="cookie" id="cookieBanner" role="region" aria-label="プライバシー設定" hidden>
+<div class="cookie" id="cookieBanner" role="region" data-i18n-attr="aria-label:privacySettings" hidden>
   <div class="cookie-inner">
     <div>
-      <h2>私たちはあなたのプライバシーを大切にします</h2>
-      <p>私たちは、お客様の体験をパーソナライズし、マーケティングを実行し、分析情報を収集するために、Cookieやその他のテクノロジーを使用します。詳細については <a href="#" id="cookiePolicy">プライバシーポリシーをご覧ください。</a></p>
+      <h2 data-i18n="ckTitle"></h2>
+      <p><span data-i18n="ckText"></span> <a href="#" id="cookiePolicy" data-i18n="ckPolicy"></a></p>
     </div>
     <div class="cookie-btns">
-      <button class="link-btn" id="cookieManage">設定を管理</button>
-      <button class="btn" id="cookieAccept">受け入れ</button>
-      <button class="btn" id="cookieReject">拒否</button>
+      <button class="link-btn" id="cookieManage" data-i18n="ckManage"></button>
+      <button class="btn" id="cookieAccept" data-i18n="ckAccept"></button>
+      <button class="btn" id="cookieReject" data-i18n="ckReject"></button>
     </div>
   </div>
 </div>
-
+ 
 <dialog class="cookie-dialog" id="cookieDialog" aria-labelledby="dlgTitle">
   <div class="dlg-body">
-    <h2 id="dlgTitle">プライバシー設定</h2>
-    <p>利用を許可するCookieの種類を選択してください。</p>
-    <label class="pref"><div><strong>必須Cookie</strong><span>サイトの動作に必要なため、常に有効です。</span></div><input type="checkbox" checked disabled></label>
-    <label class="pref"><div><strong>分析Cookie</strong><span>ページの利用状況を把握し、改善に役立てます。</span></div><input type="checkbox" id="prefAnalytics"></label>
-    <label class="pref"><div><strong>マーケティングCookie</strong><span>関心に合わせた情報の表示に使用します。</span></div><input type="checkbox" id="prefMarketing"></label>
+    <h2 id="dlgTitle" data-i18n="privacySettings"></h2>
+    <p data-i18n="dlgLead"></p>
+    <label class="pref"><div><strong data-i18n="ckEssential"></strong><span data-i18n="ckEssentialD"></span></div><input type="checkbox" checked disabled></label>
+    <label class="pref"><div><strong data-i18n="ckAnalytics"></strong><span data-i18n="ckAnalyticsD"></span></div><input type="checkbox" id="prefAnalytics"></label>
+    <label class="pref"><div><strong data-i18n="ckMarketing"></strong><span data-i18n="ckMarketingD"></span></div><input type="checkbox" id="prefMarketing"></label>
     <div class="dlg-actions">
-      <button class="btn btn-line" id="dlgCancel">キャンセル</button>
-      <button class="btn" id="dlgSave">保存</button>
+      <button class="btn btn-line" id="dlgCancel" data-i18n="cancel"></button>
+      <button class="btn" id="dlgSave" data-i18n="save"></button>
     </div>
   </div>
 </dialog>
-
+ 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
+ 
 <script>
 (() => {
   'use strict';
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
+ 
+  /* ---------------- Safe storage ---------------- */
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* unavailable */ } }
+  };
+ 
+  /* ---------------- i18n ---------------- */
+  const I18N = {
+    ja: {
+      docTitle: '555 ☦ ファッションブランド ランダム選出',
+      logoAria: '555 ☦ トップへ', navAria: 'メインナビゲーション',
+      navRandom: 'ランダム選出', navNews: 'ファッションニュース', navRates: '為替レート',
+      navTime: '東京時間', navCollection: 'コレクション', navStores: '店舗情報',
+      icSearch: 'ブランドを検索', icUser: 'マイページ', icFav: 'お気に入り', icCart: 'カート',
+      toDark: 'ダークテーマに切り替え', toLight: 'ライトテーマに切り替え',
+      searchLabel: 'ブランドを検索', searchPh: 'ブランド名で絞り込む', close: '閉じる',
+      bannerLook: 'ルックブック', bannerAW: '2026年秋冬コレクション',
+      rndTitle: 'ランダム選出', rndLead: '選択中のブランドから、ひとつを無作為に選びます。',
+      idleMsg: 'ボタンを押してください', emptyMsg: 'ブランドを1つ以上選択してください',
+      stIdle: '待機中', stSpin: '抽選中', stPicked: '選出', stEmpty: '未選択',
+      pick: 'ブランドを選ぶ', again: 'もう一度選ぶ',
+      favAdd: 'お気に入りに追加', favOn: 'お気に入り済み', favLine: 'お気に入り：', favSep: '、',
+      panelTitle: '選出対象のブランド', selectAll: 'すべて選択', selectNone: 'すべて解除',
+      noMatch: '該当するブランドがありません。', addLabel: 'ブランドを追加', addPh: 'ブランド名を追加（英字）', addBtn: '追加',
+      saveNote: '追加したブランドと選択状態は、このブラウザに自動で保存されます。',
+      picked: (b) => `選ばれたブランド：${b}`,
+      added: (b) => `「${b}」を追加しました`, removed: (b) => `「${b}」を削除しました`,
+      dup: 'すでに登録されているブランドです', removeAria: (b) => `${b}を削除`,
+      timeTitle: '東京の現在時刻', jstBadge: '日本標準時 JST（UTC+9）',
+      offSame: 'お使いの端末と同じ時刻です',
+      offAhead: (h) => `お使いの端末より${h}時間進んでいます`, offBehind: (h) => `お使いの端末より${h}時間遅れています`,
+      ratesTitle: '為替レート', baseAria: '基準通貨', amount: '金額', refresh: '更新',
+      loading: '取得中…', rateLive: (ts) => `${ts} JST 時点`, rateFallback: 'ライブ取得できないため、参考値（概算）を表示中',
+      newsTitle: '最新ファッションニュース',
+      newsLead: '2027年春夏コレクション期間の主なニュースです（2026年9月28日時点）。出典記事は英語で、内容を要約・翻訳しています。',
+      readSrc: '出典を読む', imgCredit: '画像',
+      storesTitle: '店舗情報',
+      storesLead: 'チェコ、ポーランド、オランダ、オーストリア、スイス、北欧を中心に、Rick Owens、Balenciaga、日本のデザイナーを扱う店舗の住所です。',
+      storesFoot: 'Vetements や Undercover など、直営店の住所を確認できなかったブランドは、取扱店（Vitkac、Dover Street Market Paris など）を掲載しています。住所は公式サイトと各種報道にもとづき2026年9月に確認しましたが、営業時間や移転は来店前に公式サイトでご確認ください。',
+      all: 'すべて', brandsLabel: '取扱', mapLink: '地図で見る',
+      privacySettings: 'プライバシー設定',
+      footNote: '為替レートは参考値です。実際の取引レートとは異なる場合があります。',
+      ckTitle: '私たちはあなたのプライバシーを大切にします',
+      ckText: '私たちは、お客様の体験をパーソナライズし、マーケティングを実行し、分析情報を収集するために、Cookieやその他のテクノロジーを使用します。詳細については',
+      ckPolicy: 'プライバシーポリシーをご覧ください。',
+      ckManage: '設定を管理', ckAccept: '受け入れ', ckReject: '拒否',
+      dlgLead: '利用を許可するCookieの種類を選択してください。',
+      ckEssential: '必須Cookie', ckEssentialD: 'サイトの動作に必要なため、常に有効です。',
+      ckAnalytics: '分析Cookie', ckAnalyticsD: 'ページの利用状況を把握し、改善に役立てます。',
+      ckMarketing: 'マーケティングCookie', ckMarketingD: '関心に合わせた情報の表示に使用します。',
+      cancel: 'キャンセル', save: '保存', ckSaved: '設定を保存しました',
+      tProfile: 'ログイン機能は準備中です', tCartEmpty: 'カートは空です', tFavEmpty: 'お気に入りはまだありません',
+      tFavAdd: 'お気に入りに追加しました', tFavDel: 'お気に入りから削除しました', tPolicy: 'プライバシーポリシーは準備中です'
+    },
+    ru: {
+      docTitle: '555 ☦ Случайный выбор модного бренда',
+      logoAria: '555 ☦ — наверх', navAria: 'Главная навигация',
+      navRandom: 'Случайный выбор', navNews: 'Новости моды', navRates: 'Курсы валют',
+      navTime: 'Время в Токио', navCollection: 'Коллекции', navStores: 'Магазины',
+      icSearch: 'Поиск бренда', icUser: 'Профиль', icFav: 'Избранное', icCart: 'Корзина',
+      toDark: 'Включить тёмную тему', toLight: 'Включить светлую тему',
+      searchLabel: 'Поиск бренда', searchPh: 'Фильтр по названию бренда', close: 'Закрыть',
+      bannerLook: 'Лукбук', bannerAW: 'Коллекция осень–зима 2026',
+      rndTitle: 'Случайный выбор', rndLead: 'Случайно выбираем один бренд из отмеченных.',
+      idleMsg: 'Нажмите кнопку', emptyMsg: 'Выберите хотя бы один бренд',
+      stIdle: 'Ожидание', stSpin: 'Выбираем', stPicked: 'Выбран', stEmpty: 'Не выбрано',
+      pick: 'Выбрать бренд', again: 'Выбрать ещё раз',
+      favAdd: 'В избранное', favOn: 'В избранном', favLine: 'Избранное: ', favSep: ', ',
+      panelTitle: 'Бренды в розыгрыше', selectAll: 'Выбрать все', selectNone: 'Снять все',
+      noMatch: 'Брендов не найдено.', addLabel: 'Добавить бренд', addPh: 'Добавьте бренд (латиницей)', addBtn: 'Добавить',
+      saveNote: 'Добавленные бренды и ваш выбор автоматически сохраняются в этом браузере.',
+      picked: (b) => `Выпал бренд: ${b}`,
+      added: (b) => `«${b}» добавлен`, removed: (b) => `«${b}» удалён`,
+      dup: 'Такой бренд уже есть в списке', removeAria: (b) => `Удалить ${b}`,
+      timeTitle: 'Сейчас в Токио', jstBadge: 'Японское стандартное время JST (UTC+9)',
+      offSame: 'Совпадает со временем вашего устройства',
+      offAhead: (h) => `Токио опережает ваше время на ${h} ч`, offBehind: (h) => `Токио отстаёт от вашего времени на ${h} ч`,
+      ratesTitle: 'Курсы валют', baseAria: 'Базовая валюта', amount: 'Сумма', refresh: 'Обновить',
+      loading: 'Загрузка…', rateLive: (ts) => `Данные на ${ts} JST`, rateFallback: 'Живые курсы недоступны — показаны примерные значения',
+      newsTitle: 'Свежие новости моды',
+      newsLead: 'Главное за неделю показов SS27 (по состоянию на 28 сентября 2026). Источники на английском — здесь краткий пересказ и перевод.',
+      readSrc: 'Читать источник', imgCredit: 'Фото',
+      storesTitle: 'Магазины',
+      storesLead: 'Адреса магазинов с Rick Owens, Balenciaga и японскими дизайнерами: Чехия, Польша, Нидерланды, Австрия, Швейцария, Скандинавия и флагманы во Франции, Германии и Италии.',
+      storesFoot: 'Для брендов без подтверждённого собственного магазина (Vetements, Undercover и др.) указаны мультибрендовые точки — Vitkac, Dover Street Market Paris и другие. Адреса проверены по официальным сайтам и публикациям в сентябре 2026, но часы работы и переезды лучше уточнить на сайте перед визитом.',
+      all: 'Все', brandsLabel: 'Бренды', mapLink: 'Открыть на карте',
+      privacySettings: 'Настройки конфиденциальности',
+      footNote: 'Курсы валют ориентировочные и могут отличаться от реальных банковских.',
+      ckTitle: 'Мы ценим вашу конфиденциальность',
+      ckText: 'Мы используем файлы cookie и другие технологии, чтобы персонализировать ваш опыт, проводить маркетинг и собирать аналитику. Подробнее — в',
+      ckPolicy: 'Политике конфиденциальности.',
+      ckManage: 'Настроить', ckAccept: 'Принять', ckReject: 'Отклонить',
+      dlgLead: 'Выберите, какие cookie разрешить.',
+      ckEssential: 'Необходимые cookie', ckEssentialD: 'Нужны для работы сайта, поэтому включены всегда.',
+      ckAnalytics: 'Аналитические cookie', ckAnalyticsD: 'Помогают понять, как используется сайт, и улучшать его.',
+      ckMarketing: 'Маркетинговые cookie', ckMarketingD: 'Нужны, чтобы показывать информацию по вашим интересам.',
+      cancel: 'Отмена', save: 'Сохранить', ckSaved: 'Настройки сохранены',
+      tProfile: 'Вход пока недоступен', tCartEmpty: 'Корзина пуста', tFavEmpty: 'В избранном пока ничего нет',
+      tFavAdd: 'Добавлено в избранное', tFavDel: 'Удалено из избранного', tPolicy: 'Политика конфиденциальности скоро появится'
+    }
+  };
+  let lang = store.get('site555-lang') === 'ru' ? 'ru' : 'ja';
+  const t = (k, ...a) => {
+    const v = (I18N[lang] && I18N[lang][k] !== undefined) ? I18N[lang][k] : I18N.ja[k];
+    return typeof v === 'function' ? v(...a) : (v === undefined ? k : v);
+  };
+  const locale = () => (lang === 'ru' ? 'ru-RU' : 'ja-JP');
+ 
+  function applyI18n() {
+    $$('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    $$('[data-i18n-attr]').forEach(el => {
+      el.dataset.i18nAttr.split(';').forEach(pair => {
+        const [attr, key] = pair.split(':');
+        if (attr && key) el.setAttribute(attr, t(key));
+      });
+    });
+    document.documentElement.lang = lang;
+    document.title = t('docTitle');
+    $('#langLabel').textContent = lang === 'ru' ? 'Русский' : '日本語';
+    $$('#langMenu button').forEach(b => { $('.lang-check', b).textContent = b.dataset.lang === lang ? '✓' : ''; });
+  }
+ 
   /* ---------------- Toast ---------------- */
   let toastTimer;
   function toast(msg) {
@@ -640,7 +669,7 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => el.classList.remove('is-show'), 2200);
   }
-
+ 
   /* ---------------- Language menu ---------------- */
   const langBtn = $('#langBtn'), langMenu = $('#langMenu');
   langBtn.addEventListener('click', (e) => {
@@ -650,10 +679,27 @@
     langBtn.setAttribute('aria-expanded', String(open));
   });
   document.addEventListener('click', () => { langMenu.hidden = true; langBtn.setAttribute('aria-expanded', 'false'); });
-
-  /* ---------------- Randomizer ---------------- */
+  $$('#langMenu button').forEach(b => b.addEventListener('click', () => {
+    lang = b.dataset.lang === 'ru' ? 'ru' : 'ja';
+    store.set('site555-lang', lang);
+    rerenderAll();
+  }));
+ 
+  /* ---------------- Theme ---------------- */
+  function currentTheme() { return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'; }
+  function updateThemeBtn() {
+    $('#themeBtn').setAttribute('aria-label', currentTheme() === 'dark' ? t('toLight') : t('toDark'));
+  }
+  $('#themeBtn').addEventListener('click', () => {
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    store.set('site555-theme', next);
+    updateThemeBtn();
+  });
+ 
+  /* ---------------- Randomizer state (persisted) ---------------- */
   // Brand names intentionally stay in Latin script.
-  let allBrands = [
+  const BASE_BRANDS = [
     "Vetements", "Project GR", "ERD", "Undercover", "Rick Owens",
     "Number Nine", "Balenciaga", "Protocolindex", "Hysteric Glamour",
     "Nenet", "Chrome Hearts", "LGB", "Tornado Mart", "if6was9",
@@ -661,27 +707,51 @@
     "Saint Laurent", "Martine Rose", "Stone Island + CP", "Helmut Lang",
     "Beauty Beast", "Gucci", "Vivienne Westwood"
   ];
+  const LS_BRANDS = 'site555-brands-v1';
+  let allBrands = BASE_BRANDS.slice();
+  const customSet = new Set();
   let activeBrands = new Set(allBrands);
-  let isAnimating = false;
-  let currentBrand = null;
-  let query = '';
   const favs = new Set();
-
+ 
+  function loadBrands() {
+    try {
+      const d = JSON.parse(store.get(LS_BRANDS));
+      if (!d) return;
+      (Array.isArray(d.custom) ? d.custom : []).forEach(b => {
+        if (typeof b === 'string' && b.trim() && !allBrands.some(x => x.toLowerCase() === b.toLowerCase())) {
+          allBrands.push(b); customSet.add(b);
+        }
+      });
+      const off = new Set(Array.isArray(d.inactive) ? d.inactive : []);
+      activeBrands = new Set(allBrands.filter(b => !off.has(b)));
+      (Array.isArray(d.favs) ? d.favs : []).forEach(b => { if (allBrands.includes(b)) favs.add(b); });
+    } catch (e) { /* ignore corrupt data */ }
+  }
+  function saveBrands() {
+    store.set(LS_BRANDS, JSON.stringify({
+      custom: Array.from(customSet),
+      inactive: allBrands.filter(b => !activeBrands.has(b)),
+      favs: Array.from(favs)
+    }));
+  }
+  loadBrands();
+ 
+  let isAnimating = false, currentBrand = null, hasPicked = false, stageState = 'idle', query = '';
   const chipsEl = $('#chipsContainer'), stage = $('#stage'), display = $('#result');
   const badge = $('#stateBadge'), genBtn = $('#generateBtn'), favBtn = $('#favBtn');
-
+ 
   function visibleBrands() {
     const q = query.trim().toLowerCase();
     return q ? allBrands.filter(b => b.toLowerCase().includes(q)) : allBrands.slice();
   }
-
+ 
   function renderChips() {
     chipsEl.innerHTML = '';
     const list = visibleBrands();
     if (!list.length) {
       const p = document.createElement('p');
       p.className = 'chips-empty';
-      p.textContent = '該当するブランドがありません。';
+      p.textContent = t('noMatch');
       chipsEl.appendChild(p);
     }
     list.forEach(brand => {
@@ -691,36 +761,55 @@
       chip.textContent = brand;
       chip.setAttribute('aria-pressed', String(activeBrands.has(brand)));
       chip.addEventListener('click', () => toggleBrand(brand));
-      chipsEl.appendChild(chip);
+      if (customSet.has(brand)) {
+        const grp = document.createElement('span');
+        grp.className = 'chip-group';
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.className = 'chip-x';
+        x.textContent = '×';
+        x.setAttribute('aria-label', t('removeAria', brand));
+        x.addEventListener('click', () => removeBrand(brand));
+        grp.append(chip, x);
+        chipsEl.appendChild(grp);
+      } else {
+        chipsEl.appendChild(chip);
+      }
     });
     $('#brandCount').textContent = `${activeBrands.size} / ${allBrands.length}`;
   }
-
+ 
   function toggleBrand(brand) {
     activeBrands.has(brand) ? activeBrands.delete(brand) : activeBrands.add(brand);
-    renderChips();
+    saveBrands(); renderChips();
   }
-
+ 
   function addNewBrand() {
     const input = $('#newBrandInput');
     const val = input.value.trim();
     if (!val) return;
-    if (allBrands.some(b => b.toLowerCase() === val.toLowerCase())) {
-      toast('すでに登録されているブランドです');
-      return;
-    }
-    allBrands.push(val);
-    activeBrands.add(val);
+    if (allBrands.some(b => b.toLowerCase() === val.toLowerCase())) { toast(t('dup')); return; }
+    allBrands.push(val); customSet.add(val); activeBrands.add(val);
     input.value = '';
-    renderChips();
-    toast(`「${val}」を追加しました`);
+    saveBrands(); renderChips();
+    toast(t('added', val));
   }
-
+ 
+  function removeBrand(brand) {
+    customSet.delete(brand);
+    allBrands = allBrands.filter(b => b !== brand);
+    activeBrands.delete(brand);
+    favs.delete(brand);
+    if (currentBrand === brand) { currentBrand = null; hasPicked = false; stageState = 'idle'; }
+    saveBrands(); renderChips(); updateFavUI(); renderStage();
+    toast(t('removed', brand));
+  }
+ 
   $('#addBrandBtn').addEventListener('click', addNewBrand);
   $('#newBrandInput').addEventListener('keydown', e => { if (e.key === 'Enter') addNewBrand(); });
-  $('#selectAll').addEventListener('click', () => { visibleBrands().forEach(b => activeBrands.add(b)); renderChips(); });
-  $('#selectNone').addEventListener('click', () => { visibleBrands().forEach(b => activeBrands.delete(b)); renderChips(); });
-
+  $('#selectAll').addEventListener('click', () => { visibleBrands().forEach(b => activeBrands.add(b)); saveBrands(); renderChips(); });
+  $('#selectNone').addEventListener('click', () => { visibleBrands().forEach(b => activeBrands.delete(b)); saveBrands(); renderChips(); });
+ 
   // Cryptographically secure random integer in [0, max) without modulo bias
   function getSecureRandomInt(max) {
     const limit = Math.floor(0x100000000 / max) * max;
@@ -728,80 +817,71 @@
     do { crypto.getRandomValues(arr); } while (arr[0] >= limit);
     return arr[0] % max;
   }
-
-  function setState(text) { badge.textContent = text; }
-
-  function updateFavBtn() {
-    const on = currentBrand && favs.has(currentBrand);
-    favBtn.disabled = !currentBrand;
-    favBtn.classList.toggle('is-on', !!on);
-    $('#favBtnLabel').textContent = on ? 'お気に入り済み' : 'お気に入りに追加';
+ 
+  function renderStage() {
+    stage.classList.toggle('is-result', stageState === 'result');
+    stage.classList.toggle('is-empty', stageState === 'empty');
+    display.classList.toggle('is-idle', stageState === 'idle');
+    display.classList.toggle('is-msg', stageState === 'empty');
+    if (stageState === 'idle') { display.textContent = t('idleMsg'); display.style.opacity = 1; badge.textContent = t('stIdle'); }
+    else if (stageState === 'empty') { display.textContent = t('emptyMsg'); display.style.opacity = 1; badge.textContent = t('stEmpty'); }
+    else if (stageState === 'result') { display.textContent = currentBrand; badge.textContent = t('stPicked'); }
+    else if (stageState === 'spinning') { badge.textContent = t('stSpin'); }
+    genBtn.textContent = hasPicked ? t('again') : t('pick');
+    updateFavBtn();
   }
-
+ 
+  function updateFavBtn() {
+    const on = !!(currentBrand && favs.has(currentBrand));
+    favBtn.disabled = !currentBrand;
+    favBtn.classList.toggle('is-on', on);
+    $('#favBtnLabel').textContent = on ? t('favOn') : t('favAdd');
+  }
   function updateFavUI() {
     $('#favCount').textContent = favs.size;
     const line = $('#favLine');
-    if (favs.size) {
-      line.hidden = false;
-      line.textContent = 'お気に入り：' + Array.from(favs).join('、');
-    } else {
-      line.hidden = true;
-    }
+    if (favs.size) { line.hidden = false; line.textContent = t('favLine') + Array.from(favs).join(t('favSep')); }
+    else { line.hidden = true; }
     updateFavBtn();
   }
-
   favBtn.addEventListener('click', () => {
     if (!currentBrand) return;
-    if (favs.has(currentBrand)) { favs.delete(currentBrand); toast('お気に入りから削除しました'); }
-    else { favs.add(currentBrand); toast('お気に入りに追加しました'); }
-    updateFavUI();
+    if (favs.has(currentBrand)) { favs.delete(currentBrand); toast(t('tFavDel')); }
+    else { favs.add(currentBrand); toast(t('tFavAdd')); }
+    saveBrands(); updateFavUI();
   });
-
+ 
   function showResult(brand) {
-    display.textContent = brand;
+    currentBrand = brand; hasPicked = true; stageState = 'result';
     display.style.opacity = 1;
-    display.classList.remove('is-idle');
-    stage.classList.remove('is-empty');
-    stage.classList.add('is-result');
-    setState('選出');
-    currentBrand = brand;
-    $('#resultLive').textContent = `選ばれたブランド：${brand}`;
-    updateFavBtn();
+    renderStage();
+    $('#resultLive').textContent = t('picked', brand);
   }
-
+ 
   function getRandomBrand() {
     if (isAnimating) return;
     const availableBrands = Array.from(activeBrands);
-
+ 
     if (availableBrands.length === 0) {
-      stage.classList.remove('is-result');
-      stage.classList.add('is-empty');
-      display.classList.remove('is-idle');
-      display.textContent = 'ブランドを1つ以上選択してください';
-      display.style.fontSize = 'clamp(1.2rem, 3.4vw, 1.8rem)';
-      setState('未選択');
-      currentBrand = null;
-      updateFavBtn();
+      currentBrand = null; stageState = 'empty';
+      renderStage();
       return;
     }
-    display.style.fontSize = '';
-
+ 
     if (reduceMotion) {
       showResult(availableBrands[getSecureRandomInt(availableBrands.length)]);
-      genBtn.textContent = 'もう一度選ぶ';
       return;
     }
-
+ 
     isAnimating = true;
     genBtn.disabled = true;
-    stage.classList.remove('is-result', 'is-empty');
-    display.classList.remove('is-idle');
-    setState('抽選中');
-
+    stageState = 'spinning';
+    currentBrand = null;
+    renderStage();
+ 
     let counter = 0;
     const totalFlips = 30;
     const speed = 40;
-
     const interval = setInterval(() => {
       display.textContent = availableBrands[getSecureRandomInt(availableBrands.length)];
       display.style.opacity = Math.random() * 0.4 + 0.6;
@@ -809,32 +889,24 @@
       if (counter >= totalFlips) {
         clearInterval(interval);
         showResult(availableBrands[getSecureRandomInt(availableBrands.length)]);
-        display.style.transform = 'scale(1.06)';
         display.style.transition = 'transform .2s ease';
+        display.style.transform = 'scale(1.06)';
         setTimeout(() => {
           display.style.transform = 'scale(1)';
           isAnimating = false;
           genBtn.disabled = false;
-          genBtn.textContent = 'もう一度選ぶ';
         }, 200);
       }
     }, speed);
   }
   genBtn.addEventListener('click', getRandomBrand);
-
+ 
   /* ---------------- Header tools ---------------- */
   const searchBar = $('#searchBar'), searchBtn = $('#searchBtn'), searchInput = $('#brandSearch');
-  function openSearch() {
-    searchBar.hidden = false;
-    searchBtn.setAttribute('aria-expanded', 'true');
-    searchInput.focus();
-  }
+  function openSearch() { searchBar.hidden = false; searchBtn.setAttribute('aria-expanded', 'true'); searchInput.focus(); }
   function closeSearch() {
-    searchBar.hidden = true;
-    searchBtn.setAttribute('aria-expanded', 'false');
-    searchInput.value = '';
-    query = '';
-    renderChips();
+    searchBar.hidden = true; searchBtn.setAttribute('aria-expanded', 'false');
+    searchInput.value = ''; query = ''; renderChips();
   }
   searchBtn.addEventListener('click', () => (searchBar.hidden ? openSearch() : closeSearch()));
   $('#searchClose').addEventListener('click', closeSearch);
@@ -842,104 +914,106 @@
     const first = query === '' && searchInput.value !== '';
     query = searchInput.value;
     renderChips();
-    if (first) $('#chipsContainer').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+    if (first) chipsEl.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !searchBar.hidden) closeSearch(); });
-
-  $('#userBtn').addEventListener('click', () => toast('ログイン機能は準備中です'));
-  $('#cartBtn').addEventListener('click', () => toast('カートは空です'));
+ 
+  $('#userBtn').addEventListener('click', () => toast(t('tProfile')));
+  $('#cartBtn').addEventListener('click', () => toast(t('tCartEmpty')));
   $('#favHeaderBtn').addEventListener('click', () => {
-    if (!favs.size) { toast('お気に入りはまだありません'); return; }
+    if (!favs.size) { toast(t('tFavEmpty')); return; }
     $('#random').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
   });
-
+ 
   /* ---------------- Active nav link ---------------- */
   const navLinks = $$('.main-nav a');
   const sections = navLinks.map(a => document.getElementById(a.dataset.target)).filter(Boolean);
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver(entries => {
       entries.forEach(en => {
-        if (en.isIntersecting) {
-          navLinks.forEach(a => a.classList.toggle('is-active', a.dataset.target === en.target.id));
-        }
+        if (en.isIntersecting) navLinks.forEach(a => a.classList.toggle('is-active', a.dataset.target === en.target.id));
       });
     }, { rootMargin: '-35% 0px -55% 0px' });
     sections.forEach(s => io.observe(s));
   }
-
+ 
   /* ---------------- Tokyo clock ---------------- */
-  const timeFmt = new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
-  const dateFmt = new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+  let timeFmt, dateFmt;
+  function makeFormatters() {
+    timeFmt = new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+    dateFmt = new Intl.DateTimeFormat(locale(), { timeZone: 'Asia/Tokyo', year: 'numeric', month: 'long', day: 'numeric', weekday: lang === 'ru' ? 'long' : 'short' });
+  }
   function tickClock() {
     const now = new Date();
     $('#clock').textContent = timeFmt.format(now);
     $('#dateLine').textContent = dateFmt.format(now);
-    const localOffset = -now.getTimezoneOffset() / 60;
-    const diff = 9 - localOffset;
+    const diff = 9 - (-now.getTimezoneOffset() / 60);
     const abs = Math.abs(diff);
     const h = Number.isInteger(abs) ? abs : abs.toFixed(1);
-    $('#offsetLine').textContent = diff === 0
-      ? 'お使いの端末と同じ時刻です'
-      : `お使いの端末より${h}時間${diff > 0 ? '進んでいます' : '遅れています'}`;
+    $('#offsetLine').textContent = diff === 0 ? t('offSame') : (diff > 0 ? t('offAhead', h) : t('offBehind', h));
   }
-  tickClock();
-  setInterval(tickClock, 1000);
-
+ 
   /* ---------------- Exchange rates ---------------- */
   const CUR = [
-    { code: 'JPY', name: '日本円',  unit: '円' },
-    { code: 'CNY', name: '人民元',  unit: '元' },
-    { code: 'EUR', name: 'ユーロ',  unit: 'ユーロ' },
-    { code: 'USD', name: '米ドル',  unit: 'ドル' }
+    { code: 'JPY', nameJa: '日本円', nameRu: 'Японская иена', unitJa: '円' },
+    { code: 'CNY', nameJa: '人民元', nameRu: 'Китайский юань', unitJa: '元' },
+    { code: 'EUR', nameJa: 'ユーロ', nameRu: 'Евро', unitJa: 'ユーロ' },
+    { code: 'USD', nameJa: '米ドル', nameRu: 'Доллар США', unitJa: 'ドル' }
   ];
   // Approximate fallback values (USD base), used only if the live request fails.
   let usd = { USD: 1, JPY: 148, CNY: 7.1, EUR: 0.86 };
-  let live = false, stamp = null, base = 'JPY';
-
-  const nfMoney = (code) => new Intl.NumberFormat('ja-JP', { maximumFractionDigits: code === 'JPY' ? 0 : 2 });
-  const nfRate = new Intl.NumberFormat('ja-JP', { maximumSignificantDigits: 5 });
-  const jstStamp = new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-
+  let live = false, stamp = null, base = 'JPY', loadingRates = false;
+  const unit = (c) => (lang === 'ja' ? c.unitJa : c.code);
+  const cname = (c) => (lang === 'ja' ? c.nameJa : c.nameRu);
+  const glue = () => (lang === 'ja' ? '' : '\u00A0');
+ 
   const seg = $('#baseSeg');
-  CUR.forEach(c => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.textContent = `${c.unit} ${c.code}`;
-    b.dataset.code = c.code;
-    b.setAttribute('aria-pressed', String(c.code === base));
-    b.addEventListener('click', () => { base = c.code; renderRates(); });
-    seg.appendChild(b);
-  });
-
+  function renderSeg() {
+    seg.innerHTML = '';
+    CUR.forEach(c => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = lang === 'ja' ? `${c.unitJa} ${c.code}` : c.code;
+      b.dataset.code = c.code;
+      b.setAttribute('aria-pressed', String(c.code === base));
+      b.addEventListener('click', () => { base = c.code; renderRates(); });
+      seg.appendChild(b);
+    });
+  }
+ 
   function renderRates() {
     $$('#baseSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.code === base)));
     const baseCur = CUR.find(c => c.code === base);
     const amt = parseFloat($('#amount').value);
     const amount = Number.isFinite(amt) && amt >= 0 ? amt : 0;
+    const nfRate = new Intl.NumberFormat(locale(), { maximumSignificantDigits: 5 });
     const list = $('#rateList');
     list.innerHTML = '';
     CUR.filter(c => c.code !== base).forEach(c => {
       const rate = usd[c.code] / usd[base];
+      const nf = new Intl.NumberFormat(locale(), { maximumFractionDigits: c.code === 'JPY' ? 0 : 2 });
       const li = document.createElement('li');
       const name = document.createElement('span');
       name.className = 'rate-name';
-      name.innerHTML = `${c.name}<small>${c.code}</small>`;
+      name.textContent = cname(c);
+      const small = document.createElement('small');
+      small.textContent = c.code;
+      name.appendChild(small);
       const val = document.createElement('span');
       val.className = 'rate-val';
-      val.textContent = `${nfMoney(c.code).format(amount * rate)}${c.unit}`;
+      val.textContent = `${nf.format(amount * rate)}${glue()}${unit(c)}`;
       const sub = document.createElement('span');
       sub.className = 'rate-sub';
-      sub.textContent = `1${baseCur.unit} = ${nfRate.format(rate)}${c.unit}`;
+      sub.textContent = `1${glue()}${unit(baseCur)} = ${nfRate.format(rate)}${glue()}${unit(c)}`;
       li.append(name, val, sub);
       list.appendChild(li);
     });
-    $('#rateStatus').textContent = live && stamp
-      ? `${jstStamp.format(stamp)} JST 時点`
-      : 'ライブ取得できないため、参考値（概算）を表示中';
+    const jstStamp = new Intl.DateTimeFormat(locale(), { timeZone: 'Asia/Tokyo', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+    $('#rateStatus').textContent = loadingRates ? t('loading') : (live && stamp ? t('rateLive', jstStamp.format(stamp)) : t('rateFallback'));
   }
-
+ 
   async function loadRates() {
-    $('#rateStatus').textContent = '取得中…';
+    loadingRates = true; renderRates();
     try {
       const res = await fetch('https://open.er-api.com/v6/latest/USD', { cache: 'no-store' });
       const d = await res.json();
@@ -948,28 +1022,232 @@
         live = true;
         stamp = d.time_last_update_unix ? new Date(d.time_last_update_unix * 1000) : new Date();
       } else { throw new Error('bad response'); }
-    } catch (err) {
-      live = false;
-    }
-    renderRates();
+    } catch (err) { live = false; }
+    loadingRates = false; renderRates();
   }
   $('#amount').addEventListener('input', renderRates);
   $('#rateRefresh').addEventListener('click', loadRates);
-
+ 
+  /* ---------------- News ---------------- */
+  const IMG = 'https://www.thefashionspot.com/wp-content/uploads/sites/11/2026/09/';
+  const NEWS = [
+    {
+      date: '2026-09-27', img: IMG + 'pfw-spring27-schedule-featured.jpg?w=800', src: 'theFashionSpot',
+      url: 'https://www.thefashionspot.com/runway-news/974225-heres-your-guide-to-the-paris-fashion-week-spring-2027-schedule/',
+      tag: { ja: 'パリ', ru: 'Париж' },
+      title: { ja: 'パリ・ファッションウィーク2027年春夏が開幕。9月28日〜10月6日', ru: 'Неделя моды в Париже SS27 стартовала: 28 сентября — 6 октября' },
+      text: {
+        ja: '公式スケジュールは101ブランド（ショー68、プレゼンテーション33）。10月1日にバレンシアガとリック・オウエンス、2日にヨウジヤマモト、3日にジュンヤワタナベとコム デ ギャルソンが登場します。',
+        ru: 'В официальной программе 101 бренд (68 показов и 33 презентации). Balenciaga и Rick Owens — 1 октября, Yohji Yamamoto — 2 октября, Junya Watanabe и Comme des Garçons — 3 октября.'
+      }
+    },
+    {
+      date: '2026-09-21', img: IMG + 'mcqueen-spring27-review-featured.png?w=800', src: 'theFashionSpot',
+      url: 'https://www.thefashionspot.com/runway-news/972969-forum-members-review-the-mcqueen-spring-2027-collection-marking-a-monumental-return-to-london-fashion-week/',
+      tag: { ja: 'ロンドン', ru: 'Лондон' },
+      title: { ja: 'マックイーン、25年ぶりにロンドン・ファッションウィークへ復帰', ru: 'McQueen впервые за 25 лет вернулся в расписание Лондонской недели моды' },
+      text: {
+        ja: 'ショーン・マクギアがリンカーンズ・イン・チャペルで2027年春夏を発表。テーラリングとイブニングを軸に据えた一方、ファンの反応は大きく割れました。',
+        ru: 'Шон Макгирр показал SS27 в часовне Lincoln’s Inn. В центре коллекции — тейлоринг и вечерняя одежда; реакция поклонников бренда получилась разной.'
+      }
+    },
+    {
+      date: '2026-09-28', img: IMG + 'mfw-highlights2-spring27-featured.jpg?w=800', src: 'theFashionSpot',
+      url: 'https://www.thefashionspot.com/runway-news/974232-watch-part-two-of-thefashionspots-highlights-of-milan-fashion-week-spring-2027/',
+      tag: { ja: 'ミラノ', ru: 'Милан' },
+      title: { ja: 'ミラノ・ファッションウィーク2027年春夏、本日が最終日', ru: 'Неделя моды в Милане SS27: сегодня заключительный день' },
+      text: {
+        ja: '会期は9月22〜28日。WWDによれば、過去最多となる約218件の予定が組まれ、プラダが開幕を飾りました。',
+        ru: 'Показы шли с 22 по 28 сентября. По данным WWD, в программе рекордные около 218 событий, а открыл неделю Prada.'
+      }
+    },
+    {
+      date: '2026-09-22', img: IMG + 'prada-spring27-review-featured.png?w=800', src: 'theFashionSpot',
+      url: 'https://www.thefashionspot.com/runway-news/973498-forum-members-review-the-prada-spring-2027-collection-from-miuccia-prada-raf-simons/',
+      tag: { ja: 'ミラノ', ru: 'Милан' },
+      title: { ja: 'プラダ2027年春夏、ミウッチャ・プラダとラフ・シモンズが発表', ru: 'Prada SS27: коллекция Миуччи Прады и Рафа Симонса' },
+      text: {
+        ja: 'ミラノ・ファッションウィークの序盤に披露されたコレクションは、ファンコミュニティで賛否を呼んでいます。',
+        ru: 'Коллекцию показали в начале миланской недели; в сообществе поклонников мнения разделились.'
+      }
+    },
+    {
+      date: '2026-09-28', img: IMG + 'giorgioarmani-spring27-review-featured.png?w=800', src: 'theFashionSpot',
+      url: 'https://www.thefashionspot.com/runway-news/974234-forum-members-review-silvana-armanis-flawless-giorgio-armani-spring-2027-collection/',
+      tag: { ja: 'ミラノ', ru: 'Милан' },
+      title: { ja: 'ジョルジオ アルマーニ、シルヴァーナ・アルマーニによる2027年春夏が好評', ru: 'Giorgio Armani SS27 от Сильваны Армани получил тёплый приём' },
+      text: {
+        ja: 'ハウスのコードを作り替えず、磨き上げる姿勢が支持を集めています。',
+        ru: 'Ценят, что она не переизобретает коды дома, а аккуратно развивает их.'
+      }
+    },
+    {
+      date: '2026-09-21', img: IMG + 'burberry-spring27-review-featured.jpg?w=800', src: 'theFashionSpot',
+      url: 'https://www.thefashionspot.com/runway-news/973505-forum-members-review-the-burberry-spring-2027-collection-celebrating-the-iconic-trench-coat/',
+      tag: { ja: 'ロンドン', ru: 'Лондон' },
+      title: { ja: 'バーバリー2027年春夏、トレンチコートを主役にロンドンを締めくくる', ru: 'Burberry SS27: тренч в центре внимания и финал Лондонской недели' },
+      text: {
+        ja: '象徴的なトレンチコートを軸にしたコレクションで、ロンドン・ファッションウィークが幕を閉じました。',
+        ru: 'Коллекция, построенная вокруг знаменитого тренча, завершила Лондонскую неделю моды.'
+      }
+    }
+  ];
+ 
+  function fmtDate(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    return lang === 'ru'
+      ? new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(y, m - 1, d)))
+      : `${y}.${String(m).padStart(2, '0')}.${String(d).padStart(2, '0')}`;
+  }
+ 
+  function renderNews() {
+    const grid = $('#newsGrid');
+    grid.innerHTML = '';
+    NEWS.forEach(n => {
+      const a = document.createElement('a');
+      a.className = 'news-card';
+      a.href = n.url; a.target = '_blank'; a.rel = 'noopener';
+ 
+      const imgWrap = document.createElement('div');
+      imgWrap.className = 'news-img';
+      const img = document.createElement('img');
+      img.loading = 'lazy'; img.referrerPolicy = 'no-referrer'; img.alt = '';
+      img.src = n.img;
+      img.addEventListener('error', () => { img.remove(); imgWrap.classList.add('is-fallback'); });
+      imgWrap.appendChild(img);
+ 
+      const body = document.createElement('div');
+      body.className = 'news-body';
+      const meta = document.createElement('div');
+      meta.className = 'news-meta';
+      const tag = document.createElement('span');
+      tag.className = 'badge'; tag.textContent = n.tag[lang];
+      const time = document.createElement('time');
+      time.dateTime = n.date; time.textContent = fmtDate(n.date);
+      meta.append(tag, time);
+      const h = document.createElement('h3'); h.textContent = n.title[lang];
+      const p = document.createElement('p'); p.textContent = n.text[lang];
+      const src = document.createElement('span');
+      src.className = 'news-src'; src.textContent = `${t('readSrc')} · ${t('imgCredit')}: ${n.src}`;
+      body.append(meta, h, p, src);
+ 
+      a.append(imgWrap, body);
+      grid.appendChild(a);
+    });
+  }
+ 
+  /* ---------------- Stores ---------------- */
+  // Order follows the requested priority: CZ, PL, NL, AT, CH, Nordics, then FR / DE / IT flagships.
+  const GROUPS = [
+    { id: 'CZ', ja: 'チェコ', ru: 'Чехия' },
+    { id: 'PL', ja: 'ポーランド', ru: 'Польша' },
+    { id: 'NL', ja: 'オランダ', ru: 'Нидерланды' },
+    { id: 'AT', ja: 'オーストリア', ru: 'Австрия' },
+    { id: 'CH', ja: 'スイス', ru: 'Швейцария' },
+    { id: 'NORD', ja: '北欧', ru: 'Скандинавия' },
+    { id: 'FR', ja: 'フランス', ru: 'Франция' },
+    { id: 'DE', ja: 'ドイツ', ru: 'Германия' },
+    { id: 'IT', ja: 'イタリア', ru: 'Италия' }
+  ];
+  const STORES = [
+    { g: 'CZ', city: { ja: 'プラハ', ru: 'Прага' }, name: 'Balenciaga Prague', addr: 'Pařížská 66/13, 110 00 Praha 1',
+      brands: ['Balenciaga'],
+      note: { ja: 'プラハで最も格式の高いパリ通り（パジーシュスカー通り）にあるブティック。', ru: 'Бутик на улице Пржижска — главной люксовой улице Праги.' } },
+    { g: 'CZ', city: { ja: 'プラハ', ru: 'Прага' }, name: 'Lula Studio Prague.', addr: 'Bílkova 8, Praha 1',
+      brands: ['Yohji Yamamoto Y’s', 'MM6 Maison Margiela'],
+      note: { ja: '2026年5月にオープンしたコンセプトストア。日本のアヴァンギャルドが軸。カフェ併設。', ru: 'Концепт-стор, открытый в мае 2026: акцент на японском авангарде, при магазине есть кофейня.' } },
+    { g: 'PL', city: { ja: 'ワルシャワ', ru: 'Варшава' }, name: 'VITKAC', addr: 'ul. Bracka 9, 00-501 Warszawa',
+      brands: ['Rick Owens', 'Balenciaga', 'Vetements', 'Maison Margiela', 'Comme des Garçons', 'Alexander McQueen'],
+      note: { ja: '中東欧最大級の高級デパート。Vetements や Rick Owens を探すならまずここ。', ru: 'Один из крупнейших люксовых универмагов Центральной и Восточной Европы; первым делом искать Vetements и Rick Owens здесь.' } },
+    { g: 'NL', city: { ja: 'アムステルダム', ru: 'Амстердам' }, name: 'Balenciaga Amsterdam', addr: 'P.C. Hooftstraat 99, Amsterdam',
+      brands: ['Balenciaga'],
+      note: { ja: '高級ショッピング通りP.C.ホーフト通りの路面店（約185㎡）。', ru: 'Магазин на люксовой улице P.C. Hooftstraat, около 185 м².' } },
+    { g: 'NL', city: { ja: 'アムステルダム', ru: 'Амстердам' }, name: 'BLACK Comme des Garçons', addr: 'Zeedijk 73, 1012 AS Amsterdam',
+      brands: ['Comme des Garçons BLACK'],
+      note: { ja: 'コム デ ギャルソン公式サイトの店舗一覧に掲載。', ru: 'Указан в списке магазинов на официальном сайте Comme des Garçons.' } },
+    { g: 'AT', city: { ja: 'ウィーン', ru: 'Вена' }, name: 'EMIS Modegalerie', addr: 'Wildpretmarkt 7 / Tuchlauben 18, 1010 Wien',
+      brands: ['Yohji Yamamoto', 'Comme des Garçons', 'Issey Miyake', 'Y-3'],
+      note: { ja: '1990年代から日本のアヴァンギャルドを紹介してきた約400㎡のギャラリー型ブティック。', ru: 'Галерея-бутик около 400 м²: японский авангард в Вене с начала 1990-х.' } },
+    { g: 'CH', city: { ja: 'チューリッヒ', ru: 'Цюрих' }, name: 'Balenciaga Zürich', addr: 'Bahnhofstrasse 53, 8001 Zürich',
+      brands: ['Balenciaga'],
+      note: { ja: '2024年にオープンしたスイス初の旗艦店（約367㎡）。', ru: 'Первый флагман Balenciaga в Швейцарии (около 367 м²), открыт в 2024.' } },
+    { g: 'NORD', city: { ja: 'コペンハーゲン', ru: 'Копенгаген' }, name: 'Storm', addr: 'Store Regnegade 1, 1110 København K',
+      brands: ['Comme des Garçons', 'Ann Demeulemeester', 'Maison Margiela'],
+      note: { ja: 'デンマークを代表するコンセプトストア。展示やZINEも扱います。', ru: 'Главный датский концепт-стор: одежда, книги, журналы и выставки.' } },
+    { g: 'NORD', city: { ja: 'ストックホルム', ru: 'Стокгольм' }, name: 'Acne Studios Norrmalmstorg', addr: 'Norrmalmstorg 2, 111 46 Stockholm',
+      brands: ['Acne Studios'],
+      note: { ja: '旧銀行の建物を使ったブランド旗艦店。「ストックホルム症候群」ゆかりの場所。', ru: 'Флагман в здании бывшего банка, с которым связано название «стокгольмский синдром».' } },
+    { g: 'FR', city: { ja: 'パリ', ru: 'Париж' }, name: 'Dover Street Market Paris', addr: '35-37 Rue des Francs-Bourgeois, 75004 Paris',
+      brands: ['Undercover', 'Rick Owens', 'Balenciaga', 'Junya Watanabe', 'sacai', 'Martine Rose', 'ERL'],
+      note: { ja: '17世紀の邸宅を使った川久保玲設計の店舗。Undercover など日本勢を一度に見られます。', ru: 'Магазин в особняке XVII века по проекту Рей Кавакубо: удобно смотреть Undercover и других японцев в одном месте.' } },
+    { g: 'FR', city: { ja: 'パリ', ru: 'Париж' }, name: 'Comme des Garçons Paris', addr: '56 Rue du Faubourg Saint-Honoré, 75008 Paris',
+      brands: ['Comme des Garçons', 'Junya Watanabe', 'Noir Kei Ninomiya'],
+      note: { ja: '2023年に移転した4フロアの旗艦店。', ru: 'Четырёхэтажный флагман, переехавший сюда в 2023 году.' } },
+    { g: 'FR', city: { ja: 'パリ', ru: 'Париж' }, name: 'Y’s Yohji Yamamoto Paris Louvre', addr: '25 Rue du Louvre, 75001 Paris',
+      brands: ['Y’s Yohji Yamamoto'],
+      note: { ja: 'ヨウジヤマモト公式サイトに掲載の店舗。', ru: 'Магазин, указанный на официальном сайте Yohji Yamamoto.' } },
+    { g: 'FR', city: { ja: 'パリ', ru: 'Париж' }, name: 'Rick Owens Paris', addr: 'Jardins du Palais Royal, 75001 Paris',
+      brands: ['Rick Owens'],
+      note: { ja: 'パレ・ロワイヤルの庭園沿い。公式サイトでは番地なしで案内されています。', ru: 'В садах Пале-Рояль; на официальном сайте номер дома не указан.' } },
+    { g: 'DE', city: { ja: 'ベルリン', ru: 'Берлин' }, name: 'Rick Owens Berlin', addr: 'Schlüterstraße 45, Berlin',
+      brands: ['Rick Owens'],
+      note: { ja: 'リック・オウエンス公式サイト掲載の直営店。', ru: 'Собственный магазин из списка на официальном сайте Rick Owens.' } },
+    { g: 'IT', city: { ja: 'ミラノ', ru: 'Милан' }, name: 'Rick Owens Milan', addr: 'Via Monte di Pietà 13, Milano',
+      brands: ['Rick Owens'],
+      note: { ja: 'リック・オウエンス公式サイト掲載の直営店。', ru: 'Собственный магазин из списка на официальном сайте Rick Owens.' } }
+  ];
+ 
+  let storeFilter = 'all';
+  function renderStoreFilters() {
+    const wrap = $('#storeFilters');
+    wrap.innerHTML = '';
+    const mk = (id, label) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'filter-btn'; b.textContent = label;
+      b.setAttribute('aria-pressed', String(storeFilter === id));
+      b.addEventListener('click', () => { storeFilter = id; renderStoreFilters(); renderStores(); });
+      wrap.appendChild(b);
+    };
+    mk('all', t('all'));
+    GROUPS.forEach(g => mk(g.id, g[lang]));
+  }
+  function renderStores() {
+    const grid = $('#storeGrid');
+    grid.innerHTML = '';
+    STORES.filter(s => storeFilter === 'all' || s.g === storeFilter).forEach(s => {
+      const g = GROUPS.find(x => x.id === s.g);
+      const card = document.createElement('article');
+      card.className = 'store';
+ 
+      const bd = document.createElement('span');
+      bd.className = 'badge'; bd.textContent = `${g[lang]} / ${s.city[lang]}`;
+      const h = document.createElement('h3'); h.textContent = s.name;
+      const ad = document.createElement('address'); ad.textContent = s.addr;
+      const br = document.createElement('p'); br.className = 'store-brands';
+      br.textContent = `${t('brandsLabel')}: ${s.brands.join(', ')}`;
+      const nt = document.createElement('p'); nt.className = 'store-note'; nt.textContent = s.note[lang];
+      const map = document.createElement('a');
+      map.href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(`${s.name} ${s.addr}`);
+      map.target = '_blank'; map.rel = 'noopener'; map.textContent = t('mapLink');
+ 
+      card.append(bd, h, ad, br, nt, map);
+      grid.appendChild(card);
+    });
+  }
+ 
   /* ---------------- Cookie banner ---------------- */
   const KEY = 'site555-cookie-consent';
   const banner = $('#cookieBanner'), dlg = $('#cookieDialog');
-  function readConsent() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
-  function writeConsent(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } }
+  function readConsent() { try { return JSON.parse(store.get(KEY)); } catch (e) { return null; } }
   function padForBanner() { document.body.style.paddingBottom = banner.hidden ? '' : banner.offsetHeight + 'px'; }
   function showBanner() { banner.hidden = false; padForBanner(); }
   function hideBanner() { banner.hidden = true; padForBanner(); }
   function decide(analytics, marketing) {
-    writeConsent({ analytics, marketing, at: Date.now() });
+    store.set(KEY, JSON.stringify({ analytics, marketing, at: Date.now() }));
     hideBanner();
   }
-  $('#cookieAccept').addEventListener('click', () => { decide(true, true); toast('設定を保存しました'); });
-  $('#cookieReject').addEventListener('click', () => { decide(false, false); toast('設定を保存しました'); });
+  $('#cookieAccept').addEventListener('click', () => { decide(true, true); toast(t('ckSaved')); });
+  $('#cookieReject').addEventListener('click', () => { decide(false, false); toast(t('ckSaved')); });
   function openPrefs() {
     const c = readConsent() || {};
     $('#prefAnalytics').checked = !!c.analytics;
@@ -978,22 +1256,38 @@
   }
   $('#cookieManage').addEventListener('click', openPrefs);
   $('#footPrivacy').addEventListener('click', e => { e.preventDefault(); openPrefs(); });
-  $('#cookiePolicy').addEventListener('click', e => { e.preventDefault(); toast('プライバシーポリシーは準備中です'); });
+  $('#cookiePolicy').addEventListener('click', e => { e.preventDefault(); toast(t('tPolicy')); });
   $('#dlgCancel').addEventListener('click', () => dlg.close());
   $('#dlgSave').addEventListener('click', () => {
     decide($('#prefAnalytics').checked, $('#prefMarketing').checked);
     dlg.close();
-    toast('設定を保存しました');
+    toast(t('ckSaved'));
   });
   window.addEventListener('resize', padForBanner);
-  if (!readConsent()) showBanner();
-
-  /* ---------------- Init ---------------- */
-  renderChips();
-  updateFavUI();
-  renderRates();
+ 
+  /* ---------------- Render everything ---------------- */
+  function rerenderAll() {
+    applyI18n();
+    makeFormatters();
+    renderChips();
+    renderStage();
+    updateFavUI();
+    renderSeg();
+    renderRates();
+    renderNews();
+    renderStoreFilters();
+    renderStores();
+    tickClock();
+    updateThemeBtn();
+    padForBanner();
+  }
+ 
+  rerenderAll();
+  setInterval(tickClock, 1000);
   loadRates();
+  if (!readConsent()) showBanner();
 })();
 </script>
 </body>
 </html>
+ 
